@@ -36,7 +36,7 @@ const isCorrupted = ref(false)
 
 const mineBytes = () => {
   bytesMined.value++
-  if (bytesMined.value >= 15) {
+  if (bytesMined.value >= 5) {
     isCorrupted.value = true // Triggers a theme change and uncovers a secret log
   }
 }
@@ -115,107 +115,107 @@ const executeCommand = () => {
 </script>
 
 <template>
-  <div :class="['min-h-screen p-8 md:p-16 max-w-4xl mx-auto transition-colors duration-1000', isCorrupted ? 'bg-[#2a0f0f] text-red-200' : 'bg-terminal-bg text-gray-300']">
-    
-    <header class="mb-16 border-b border-gray-700 pb-8">
-      <h1 class="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
-        Nicholas Chng 
-        <span @click="mineBytes" 
-              :class="['animate-pulse cursor-pointer select-none', isCorrupted ? 'text-red-500' : 'text-terminal-green']">_</span>
-      </h1> 
-      <h2 class="text-xl text-gray-400 mb-6">Bachelor of Information Engineering @ NTU</h2> 
-      
-      <div class="bg-gray-800/50 p-4 border-l-4 border-terminal-accent font-serif italic space-y-2 h-24">
-        <p>
-          <span :class="['font-bold not-italic', isCorrupted ? 'text-red-500' : 'text-terminal-accent']">[LOGIC: Challenging]</span> 
-          — {{ typedText }}<span v-if="typedText.length < fullText.length" class="animate-pulse">|</span>
-        </p>
+  <div :class="['min-h-screen w-full transition-colors duration-1000', isCorrupted ? 'bg-[#2a0f0f] text-red-200' : 'bg-terminal-bg text-gray-300']">
+    <div class="p-8 md:p-16 max-w-4xl mx-auto">
+      <header class="mb-16 border-b border-gray-700 pb-8">
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
+          Nicholas Chng 
+          <span @click="mineBytes" 
+                :class="['animate-pulse cursor-pointer select-none', isCorrupted ? 'text-red-500' : 'text-terminal-green']">_</span>
+        </h1> 
+        <h2 class="text-xl text-gray-400 mb-6">Bachelor of Information Engineering @ NTU</h2> 
         
-        <p v-if="isCorrupted" class="text-red-400 font-bold fade-in mt-2">
-          [CONCEPTUALIZATION: Success] — The system is yours. You have extracted {{ bytesMined }} encrypted bytes.
-        </p>
-      </div>
-    </header>
-
-    <main class="space-y-16">
-      
-      <section class="scroll-fade opacity-0 translate-y-10 transition-all duration-700 ease-out">
-        <h3 class="text-2xl font-bold text-terminal-green mb-6 flex items-center">
-          <span class="mr-2">/></span> Work_Experience
-        </h3>
-        
-        <div class="space-y-8">
-          <div class="relative pl-6 border-l border-gray-700">
-            <div class="absolute w-3 h-3 bg-terminal-green rounded-full -left-[6.5px] top-1.5"></div>
-            <h4 class="text-xl font-bold text-white">Singapore Armed Forces</h4> <p class="text-terminal-accent mb-2">Signal Storeman | Aug 2023 - Aug 2025</p> <p class="text-sm">Built Excel-based automation systems to track inventory, improving fulfilment lead times and accuracy by 20%.</p> </div>
+        <div class="bg-gray-800/50 p-4 border-l-4 border-terminal-accent font-serif italic space-y-2 h-24">
+          <p>
+            <span :class="['font-bold not-italic', isCorrupted ? 'text-red-500' : 'text-terminal-accent']">[LOGIC: Challenging]</span> 
+            — {{ typedText }}<span v-if="typedText.length < fullText.length" class="animate-pulse">|</span>
+          </p>
           
-          <div class="relative pl-6 border-l border-gray-700">
-            <div class="absolute w-3 h-3 bg-gray-600 rounded-full -left-[6.5px] top-1.5"></div>
-            <h4 class="text-xl font-bold text-white">Toppan Ecquaria</h4> <p class="text-terminal-accent mb-2">QA Intern | Sep 2022 - Jan 2023</p> <p class="text-sm">Devised automation scripts in Visual Basic and Excel to streamline data tracking, reducing manual entry errors and improving bug-reporting turnaround by 40%.</p> </div>
-        </div>
-      </section>
-
-      <section class="scroll-fade opacity-0 translate-y-10 transition-all duration-700 ease-out delay-100">
-        <h3 class="text-2xl font-bold text-terminal-green mb-6 flex items-center">
-          <span class="mr-2">/></span> Project_Vault
-        </h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div v-for="project in projects" :key="project.title" 
-               class="bg-gray-800/30 border border-gray-700 p-6 hover:border-terminal-green transition-colors group">
-            <h4 class="text-lg font-bold text-white mb-1 group-hover:text-terminal-green">{{ project.title }}</h4>
-            <p class="text-xs text-terminal-accent mb-4 font-bold tracking-wider uppercase">{{ project.tech }}</p>
-            <p class="text-sm mb-6">{{ project.description }}</p>
-            <a :href="project.link" target="_blank" class="inline-flex items-center text-sm font-bold hover:text-white transition-colors">
-              Access Source <span class="ml-2 group-hover:translate-x-1 transition-transform">-></span>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <section class="scroll-fade opacity-0 translate-y-10 transition-all duration-700 ease-out delay-200">
-        <h3 :class="['text-2xl font-bold mb-6 flex items-center', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
-          <span class="mr-2">/></span> Accolades
-        </h3>
-        <ul class="space-y-3">
-          <li v-for="award in achievements" :key="award.title" class="flex flex-col sm:flex-row sm:justify-between border-b border-gray-700/50 pb-2">
-            <span class="font-bold text-white">{{ award.title }}</span>
-            <span class="text-sm text-gray-400">{{ award.event }} <span class="text-terminal-accent ml-2">[{{ award.year }}]</span></span>
-          </li>
-        </ul>
-      </section>
-
-    </main>
-
-    <footer class="mt-24 pt-8 border-t border-gray-700 font-mono text-sm">
-      <div class="bg-black/50 p-4 rounded-md border border-gray-800">
-        <div class="mb-2 space-y-1 h-32 overflow-y-auto flex flex-col justify-end">
-          <p v-for="(line, index) in terminalOutput" :key="index" :class="isCorrupted ? 'text-red-400' : 'text-gray-400'">
-            {{ line }}
+          <p v-if="isCorrupted" class="text-red-400 font-bold fade-in mt-2">
+            [CONCEPTUALIZATION: Success] — The system is yours. You have extracted {{ bytesMined }} encrypted bytes.
           </p>
         </div>
-        <div class="flex items-center">
-          <span :class="['mr-2', isCorrupted ? 'text-red-500' : 'text-terminal-green']">guest@n4ver:~$</span>
-          <input 
-            v-model="terminalInput" 
-            @keyup.enter="executeCommand"
-            type="text" 
-            class="bg-transparent border-none outline-none flex-1 text-white"
-            placeholder="enter command..."
-            autocomplete="off"
-            spellcheck="false"
-          />
+      </header>
+
+      <main class="space-y-16">
+        
+        <section class="scroll-fade opacity-0 translate-y-10 transition-all duration-700 ease-out">
+          <h3 :class="['text-2xl font-boldmb-6 flex items-center', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
+            <span class="mr-2">/></span> Work_Experience
+          </h3>
+          
+          <div class="space-y-8">
+            <div class="relative pl-6 border-l border-gray-700">
+              <div class="absolute w-3 h-3 bg-gray-600 rounded-full -left-[6.5px] top-1.5"></div>
+              <h4 class="text-xl font-bold text-white">Singapore Armed Forces</h4> <p class="text-terminal-accent mb-2">Signal Storeman | Aug 2023 - Aug 2025</p> <p class="text-sm">Built Excel-based automation systems to track inventory, improving fulfilment lead times and accuracy by 20%.</p> </div>
+            
+            <div class="relative pl-6 border-l border-gray-700">
+              <div class="absolute w-3 h-3 bg-gray-600 rounded-full -left-[6.5px] top-1.5"></div>
+              <h4 class="text-xl font-bold text-white">Toppan Ecquaria</h4> <p class="text-terminal-accent mb-2">QA Intern | Sep 2022 - Jan 2023</p> <p class="text-sm">Devised automation scripts in Visual Basic and Excel to streamline data tracking, reducing manual entry errors and improving bug-reporting turnaround by 40%.</p> </div>
+          </div>
+        </section>
+
+        <section class="scroll-fade opacity-0 translate-y-10 transition-all duration-700 ease-out delay-100">
+          <h3 :class="['text-2xl font-bold mb-6 flex items-center', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
+            <span class="mr-2">/></span> Project_Vault
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div v-for="project in projects" :key="project.title" 
+                :class="['bg-gray-800/30 border border-gray-700 p-6 transition-colors group', isCorrupted ? 'hover:border-red-500' : 'hover:border-terminal-green']">
+              <h4 :class="['text-lg font-bold text-white mb-1', isCorrupted ? 'group-hover:text-red-500' : 'group-hover:text-terminal-green']">{{ project.title }}</h4>
+              <p :class="['text-xs mb-4 font-bold tracking-wider uppercase', isCorrupted ? 'text-red-400' : 'text-terminal-accent']">{{ project.tech }}</p>
+              <p class="text-sm mb-6">{{ project.description }}</p>
+              <a :href="project.link" target="_blank" class="inline-flex items-center text-sm font-bold hover:text-white transition-colors">
+                Access Source <span class="ml-2 group-hover:translate-x-1 transition-transform">-></span>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="scroll-fade opacity-0 translate-y-10 transition-all duration-700 ease-out delay-200">
+          <h3 :class="['text-2xl font-bold mb-6 flex items-center', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
+            <span class="mr-2">/></span> Accolades
+          </h3>
+          <ul class="space-y-3">
+            <li v-for="award in achievements" :key="award.title" class="flex flex-col sm:flex-row sm:justify-between border-b border-gray-700/50 pb-2">
+              <span class="font-bold text-white">{{ award.title }}</span>
+              <span class="text-sm text-gray-400">{{ award.event }} <span class="text-terminal-accent ml-2">[{{ award.year }}]</span></span>
+            </li>
+          </ul>
+        </section>
+
+      </main>
+
+      <footer class="mt-24 pt-8 border-t border-gray-700 font-mono text-sm">
+        <div class="bg-black/50 p-4 rounded-md border border-gray-800">
+          <div class="mb-2 space-y-1 h-32 overflow-y-auto flex flex-col justify-end">
+            <p v-for="(line, index) in terminalOutput" :key="index" :class="isCorrupted ? 'text-red-400' : 'text-gray-400'">
+              {{ line }}
+            </p>
+          </div>
+          <div class="flex items-center">
+            <span :class="['mr-2', isCorrupted ? 'text-red-500' : 'text-terminal-green']">guest@n4ver:~$</span>
+            <input 
+              v-model="terminalInput" 
+              @keyup.enter="executeCommand"
+              type="text" 
+              class="bg-transparent border-none outline-none flex-1 text-white"
+              placeholder="enter command..."
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </div>
         </div>
-      </div>
-      
-      <div class="mt-4 flex justify-between text-gray-500">
-        <p>SYSTEM.VERSION: 1.0.0</p>
-        <div class="space-x-4">
-          <a href="https://github.com/n4ver" target="_blank" class="hover:text-white transition-colors">GitHub</a>
+        
+        <div class="mt-4 flex justify-between text-gray-500">
+          <p>SYSTEM.VERSION: 1.0.0</p>
+          <div class="space-x-4">
+            <a href="https://github.com/n4ver" target="_blank" class="hover:text-white transition-colors">GitHub</a>
+          </div>
         </div>
-      </div>
-    </footer>
-    
+      </footer>
+    </div>
   </div>
 </template>
 
