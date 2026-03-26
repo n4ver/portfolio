@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-// --- 1. THE PROJECT VAULT DATA ---
+// --- PROJECT DATA ---
 const projects = ref([
   {
     title: 'E-sports Stream Dashboard',
@@ -23,14 +23,32 @@ const projects = ref([
   }
 ])
 
-// --- 2. ACHIEVEMENTS DATA ---
+// --- ACHIEVEMENTS DATA ---
 const achievements = ref([
   { title: 'Selected Student Representative for NTU\'s IEM', event: 'EAB Accreditation Dialogue', year: '2026' },
   { title: 'Participant', event: 'National Olympiad in Informatics (NOI)', year: '2019' },
   { title: 'Merit Award', event: 'CB Paul Science Quiz', year: '2019' }
 ])
 
-// --- 3. EASTER EGG: IDLE MECHANIC ---
+// --- EDUCATION DATA ---
+const education = ref([
+  {
+    institute: 'Nanyang Technological University',
+    course: 'BS in Information Engineering & Media',
+    graduation: 'Expected May 2028',
+    cca: 'dEEEveloper Sub-committee (Training & Development | Special Projects)'
+
+  },
+  {
+    institute: 'Ngee Ann Polytechnic',
+    course: 'Dip in Cybersecurity & Digital Forensics',
+    graduation: 'May 2023',
+    cca: ''
+  }
+])
+
+
+// --- EASTER EGG: IDLE MECHANIC ---
 const bytesMined = ref(0)
 const isCorrupted = ref(false)
 
@@ -41,7 +59,7 @@ const mineBytes = () => {
   }
 }
 
-// --- 4. TYPEWRITER EFFECT ---
+// --- TYPEWRITER EFFECT ---
 const fullText = "Start with the biggest letters in order to learn the characteristics of the style. Then work your way down."
 const typedText = ref('')
 
@@ -79,7 +97,7 @@ onMounted(() => {
 
 })
 
-// --- 5. INTERACTIVE COMMAND LINE ---
+// --- INTERACTIVE COMMAND LINE ---
 const terminalInput = ref('')
 const terminalOutput = ref(['SYSTEM.STATUS: ONLINE. Type "help" for a list of commands.'])
 
@@ -182,6 +200,39 @@ const executeCommand = () => {
               <span class="font-bold text-white">{{ award.title }}</span>
               <span class="text-sm text-gray-400">{{ award.event }} <span class="text-terminal-accent ml-2">[{{ award.year }}]</span></span>
             </li>
+          </ul>
+        </section>
+
+        <section class="scroll-fade opacity-0 translate-y-10 transition-all duration-700 ease-out delay-200">
+          <h3 :class="['text-2xl font-bold mb-6 flex items-center', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
+            <span class="mr-2">/></span> Education
+          </h3>
+          
+          <ul class="space-y-8 relative border-l border-gray-700/50 pl-6 ml-2">
+            
+            <li v-for="edu in education" :key="edu.institute" class="relative group">
+              <div :class="['absolute w-2.5 h-2.5 rounded-full -left-[30px] top-1.5 transition-colors duration-300', isCorrupted ? 'bg-red-500' : 'bg-gray-600 group-hover:bg-terminal-green']"></div>
+
+              <div class="flex flex-col md:flex-row md:justify-between items-start gap-2 md:gap-4">
+                
+                <div class="mb-2 md:mb-0 flex-1">
+                  <h4 class="text-lg font-bold text-white tracking-wide">{{ edu.institute }}</h4>
+                  <p v-if="edu.cca" :class="['text-xs mt-2 flex items-start leading-relaxed', isCorrupted ? 'text-red-400/80' : 'text-terminal-accent/80']">
+                    <span class="mr-2 opacity-50 font-mono">↳</span> 
+                    {{ edu.cca }}
+                  </p>
+                </div>
+
+                <div class="flex flex-col md:items-end md:text-right flex-1">
+                  <span class="text-gray-300 font-medium">{{ edu.course }}</span>
+                  <span :class="['text-xs font-mono tracking-wider mt-1 whitespace-nowrap', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
+                    [{{ edu.graduation }}]
+                  </span>
+                </div>
+                
+              </div>
+            </li>
+            
           </ul>
         </section>
 
