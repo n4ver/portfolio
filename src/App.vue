@@ -125,7 +125,7 @@ const executeCommand = () => {
         </h1> 
         <h2 class="text-xl text-gray-400 mb-6">Bachelor of Information Engineering @ NTU</h2> 
         
-        <div class="bg-gray-800/50 p-4 border-l-4 border-terminal-accent font-serif italic space-y-2 h-24">
+        <div class="bg-gray-800/50 p-4 border-l-4 border-terminal-accent font-serif italic space-y-2 min-h-32">
           <p>
             <span :class="['font-bold not-italic', isCorrupted ? 'text-red-500' : 'text-terminal-accent']">[LOGIC: Challenging]</span> 
             — {{ typedText }}<span v-if="typedText.length < fullText.length" class="animate-pulse">|</span>
