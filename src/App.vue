@@ -141,7 +141,7 @@ const executeCommand = () => {
           <span @click="mineBytes" 
                 :class="['animate-pulse cursor-pointer select-none', isCorrupted ? 'text-red-500' : 'text-terminal-green']">_</span>
         </h1> 
-        <h2 class="text-xl text-gray-400 mb-6">Bachelor of Information Engineering @ NTU</h2> 
+        <h2 class="text-xl text-gray-400 mb-6">Bachelor of Information Engineering & Media @ NTU</h2> 
         
         <div class="bg-gray-800/50 p-4 border-l-4 border-terminal-accent font-serif italic space-y-2 min-h-32">
           <p>
