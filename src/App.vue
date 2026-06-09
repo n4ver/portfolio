@@ -6,6 +6,12 @@ import { computed, ref, onMounted, onUnmounted } from 'vue';
 // --- PROJECT DATA ---
 const projects = ref([
   {
+    title: 'E-sports Stats Dashboard',
+    tech: 'Python, FastAPI, REST API',
+    description: 'Developed a full-stack dashboard which consumes public APIs to generate aggregate statistics for players and tournaments',
+    link: 'https://github.com/n4ver/logdashboard'
+  },
+  {
     title: 'E-sports Stream Dashboard',
     tech: 'Python, Flask, WSGI, REST API',
     description: 'Created and deployed a web-based dashboard automating display of competitive Team Fortress 2 match logs for grassroots live streaming.',
