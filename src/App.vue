@@ -1,5 +1,7 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import Threads from "./Threads.vue";
+import AnimatedContent from "./AnimatedContent.vue";
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 
 // --- PROJECT DATA ---
 const projects = ref([
@@ -34,9 +36,16 @@ const achievements = ref([
 const education = ref([
   {
     institute: 'Nanyang Technological University',
-    course: 'BS in Information Engineering & Media',
+    course: 'BEng in Information Engineering & Media',
     graduation: 'Expected May 2028',
     cca: 'dEEEveloper Sub-committee (Training & Development | Special Projects)'
+
+  },
+  {
+    institute: 'Technical University of Munich',
+    course: 'GEM Explorer Semester Exchange',
+    graduation: '2027 Winter Semester',
+    cca: ''
 
   },
   {
@@ -59,42 +68,33 @@ const mineBytes = () => {
   }
 }
 
+const threadAmplitude = computed(() => (isCorrupted.value ? 14 : 5))
+const threadDistance = computed(() => (isCorrupted.value ? 0.45 : 0))
+const threadMouseInteraction = computed(() => isCorrupted.value)
+
 // --- TYPEWRITER EFFECT ---
 const fullText = "Start with the biggest letters in order to learn the characteristics of the style. Then work your way down."
 const typedText = ref('')
 
+let typewriterTimer = null
+
 onMounted(() => {
-  let i = 0
-  const interval = setInterval(() => {
-    if (i < fullText.length) {
-      typedText.value += fullText.charAt(i)
-      i++
-    } else {
-      clearInterval(interval)
+  typewriterTimer = window.setInterval(() => {
+    const nextIndex = typedText.value.length
+    if (nextIndex < fullText.length) {
+      typedText.value += fullText.charAt(nextIndex)
+    } else if (typewriterTimer) {
+      clearInterval(typewriterTimer)
+      typewriterTimer = null
     }
   }, 40) // Typing speed in milliseconds
+})
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        // When the element is in view, remove the hidden state classes
-        // and add the visible state classes
-        entry.target.classList.remove('opacity-0', 'translate-y-10')
-        entry.target.classList.add('opacity-100', 'translate-y-0')
-        
-        // Unobserve so the animation only happens once per page load
-        observer.unobserve(entry.target) 
-      }
-    })
-  }, { 
-    threshold: 0.1 // Triggers when 10% of the element is visible
-  })
-
-  // Target all elements with the 'scroll-fade' class
-  document.querySelectorAll('.scroll-fade').forEach((el) => {
-    observer.observe(el)
-  })
-
+onUnmounted(() => {
+  if (typewriterTimer) {
+    clearInterval(typewriterTimer)
+    typewriterTimer = null
+  }
 })
 
 // --- INTERACTIVE COMMAND LINE ---
@@ -130,12 +130,24 @@ const executeCommand = () => {
   }
   terminalInput.value = ''
 }
+
+const scrollContainer = ref(null)
 </script>
 
 <template>
-  <div :class="['min-h-screen w-full transition-colors duration-1000', isCorrupted ? 'bg-[#2a0f0f] text-red-200' : 'bg-terminal-bg text-gray-300']">
-    <div class="p-8 md:p-16 max-w-4xl mx-auto">
-      <header class="mb-16 border-b border-gray-700 pb-8">
+  <div :class="['fixed inset-0 isolate w-full overflow-hidden transition-colors duration-1000', isCorrupted ? 'bg-[#2a0f0f] text-red-200' : 'bg-terminal-bg text-gray-300']">
+    <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+      <Threads class="absolute inset-0 h-full w-full opacity-50"
+        :color="isCorrupted ? [1, 0.35, 0.35] : [1, 1, 1]"
+        :amplitude="threadAmplitude"
+        :distance="threadDistance"
+        :enableMouseInteraction="threadMouseInteraction"
+      />
+    </div>
+    <div ref="scrollContainer" class="scroll-shell relative z-10 h-full overflow-y-auto overflow-x-hidden scroll-smooth">
+      <div class="p-8 md:p-16 max-w-4xl mx-auto min-h-full">
+      <AnimatedContent :scroller="scrollContainer" :delay="0.05" :distance="60" class="mb-16 border-b border-gray-700 pb-8">
+      <header>
         <h1 class="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
           Nicholas Chng 
           <span @click="mineBytes" 
@@ -154,15 +166,20 @@ const executeCommand = () => {
           </p>
         </div>
       </header>
+      </AnimatedContent>
 
       <main class="space-y-16">
-        
-        <section class="scroll-fade opacity-0 translate-y-10 transition-all duration-700 ease-out">
+        <AnimatedContent :scroller="scrollContainer" :delay="0.1" :distance="60">
+        <section>
           <h3 :class="['text-2xl font-boldmb-6 flex items-center', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
             <span class="mr-2">/></span> Work_Experience
           </h3>
           
           <div class="space-y-8">
+            <div class="relative pl-6 border-l border-gray-700">
+              <div class="absolute w-3 h-3 bg-gray-600 rounded-full -left-[6.5px] top-1.5"></div>
+              <h4 class="text-xl font-bold text-white">Audax Financial Technology</h4> <p class="text-terminal-accent mb-2">Software Engineer Intern | May 2026 - Aug 2026</p> <p class="text-sm">Contributed to a Java/Spring Boot microservices platform, resolving deprecated API usages during core backend migration from Spring Boot 3.5 to Spring Boot 4.0.</p> </div>
+            
             <div class="relative pl-6 border-l border-gray-700">
               <div class="absolute w-3 h-3 bg-gray-600 rounded-full -left-[6.5px] top-1.5"></div>
               <h4 class="text-xl font-bold text-white">Singapore Armed Forces</h4> <p class="text-terminal-accent mb-2">Signal Storeman | Aug 2023 - Aug 2025</p> <p class="text-sm">Built Excel-based automation systems to track inventory, improving fulfilment lead times and accuracy by 20%.</p> </div>
@@ -172,8 +189,10 @@ const executeCommand = () => {
               <h4 class="text-xl font-bold text-white">Toppan Ecquaria</h4> <p class="text-terminal-accent mb-2">QA Intern | Sep 2022 - Jan 2023</p> <p class="text-sm">Devised automation scripts in Visual Basic and Excel to streamline data tracking, reducing manual entry errors and improving bug-reporting turnaround by 40%.</p> </div>
           </div>
         </section>
+        </AnimatedContent>
 
-        <section class="scroll-fade opacity-0 translate-y-10 transition-all duration-700 ease-out delay-100">
+        <AnimatedContent :scroller="scrollContainer" :delay="0.15" :distance="60">
+        <section>
           <h3 :class="['text-2xl font-bold mb-6 flex items-center', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
             <span class="mr-2">/></span> Project_Vault
           </h3>
@@ -190,8 +209,10 @@ const executeCommand = () => {
             </div>
           </div>
         </section>
+        </AnimatedContent>
 
-        <section class="scroll-fade opacity-0 translate-y-10 transition-all duration-700 ease-out delay-200">
+        <AnimatedContent :scroller="scrollContainer" :delay="0.2" :distance="60">
+        <section>
           <h3 :class="['text-2xl font-bold mb-6 flex items-center', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
             <span class="mr-2">/></span> Accolades
           </h3>
@@ -202,8 +223,10 @@ const executeCommand = () => {
             </li>
           </ul>
         </section>
+        </AnimatedContent>
 
-        <section class="scroll-fade opacity-0 translate-y-10 transition-all duration-700 ease-out delay-200">
+        <AnimatedContent :scroller="scrollContainer" :delay="0.25" :distance="60">
+        <section>
           <h3 :class="['text-2xl font-bold mb-6 flex items-center', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
             <span class="mr-2">/></span> Education
           </h3>
@@ -235,9 +258,11 @@ const executeCommand = () => {
             
           </ul>
         </section>
+        </AnimatedContent>
 
       </main>
 
+      <AnimatedContent :scroller="scrollContainer" :delay="0.3" :distance="50">
       <footer class="mt-24 pt-8 border-t border-gray-700 font-mono text-sm">
         <div class="bg-black/50 p-4 rounded-md border border-gray-800">
           <div class="mb-2 space-y-1 h-32 overflow-y-auto flex flex-col justify-end">
@@ -266,6 +291,8 @@ const executeCommand = () => {
           </div>
         </div>
       </footer>
+      </AnimatedContent>
+      </div>
     </div>
   </div>
 </template>
@@ -275,6 +302,16 @@ const executeCommand = () => {
 .fade-in {
   animation: fadeIn 1s ease-in-out;
 }
+
+.scroll-shell {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scroll-shell::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
