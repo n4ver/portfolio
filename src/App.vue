@@ -8,7 +8,7 @@ const projects = ref([
   {
     title: 'E-sports Stats Dashboard',
     tech: 'Python, FastAPI, REST API',
-    description: 'Developed a full-stack dashboard which consumes public APIs to generate aggregate statistics for players and tournaments',
+    description: 'Engineered a high-throughput backend service using FastAPI and an event-driven CQRS pattern to ingest, parse and aggregate e-sports match logs asynchronously.',
     link: 'https://github.com/n4ver/logdashboard'
   },
   {
@@ -28,6 +28,12 @@ const projects = ref([
     tech: 'Java, MySQL, Tomcat',
     description: 'Designed and implemented a normalised database schema with a many-to-many relationship, using PreparedStatements to prevent SQL injection.',
     link: 'https://github.com/n4ver/IM2073_WebProject'
+  },
+  {
+    title: 'TF2 Hitsound Manager',
+    tech: 'Rust, Tauri',
+    description: 'A Desktop Application for managing Team Fortress 2 hitsound customizations.',
+    link: 'https://github.com/n4ver/hitman'
   }
 ])
 
@@ -184,7 +190,9 @@ const scrollContainer = ref(null)
           <div class="space-y-8">
             <div class="relative pl-6 border-l border-gray-700">
               <div class="absolute w-3 h-3 bg-gray-600 rounded-full -left-[6.5px] top-1.5"></div>
-              <h4 class="text-xl font-bold text-white">Audax Financial Technology</h4> <p class="text-terminal-accent mb-2">Software Engineer Intern | May 2026 - Aug 2026</p> <p class="text-sm">Contributed to a Java/Spring Boot microservices platform, resolving deprecated API usages during core backend migration from Spring Boot 3.5 to Spring Boot 4.0.</p> </div>
+              <h4 class="text-xl font-bold text-white">Audax Financial Technology</h4> <p class="text-terminal-accent mb-2">Software Engineer Intern | May 2026 - Aug 2026</p> <p class="text-sm">
+                Migrated seven Java microservices (accounts, transactions, payments) from Spring Boot 3.5 to 4.0. Developed strategy-pattern Java services to retrieve pending hold transactions from core banking APIs, enabling end-to-end CASA journeys.
+              </p> </div>
             
             <div class="relative pl-6 border-l border-gray-700">
               <div class="absolute w-3 h-3 bg-gray-600 rounded-full -left-[6.5px] top-1.5"></div>
