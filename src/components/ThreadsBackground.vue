@@ -2,50 +2,48 @@
   <div ref="containerRef" class="w-full h-full relative" />
 </template>
 
-<script setup lang="ts">
+<script setup>
+/*
+ * WebGL "Threads" background.
+ * Adapted from Vue Bits (https://vue-bits.dev, https://github.com/DavidHDev/vue-bits),
+ * a Vue port of React Bits. Copyright (c) 2025 David Haz.
+ * MIT + Commons Clause License Condition v1.0, see ./LICENSE-vue-bits.md.
+ * Local changes: fewer lines, dpr 1, 30 fps cap on low-power devices, pause while
+ * hidden, window-level mouse tracking, "unsupported" event when WebGL fails.
+ */
 import { onMounted, onUnmounted, watch, useTemplateRef } from 'vue';
 import { Renderer, Program, Mesh, Triangle, Color } from 'ogl';
-import type { OGLRenderingContext } from 'ogl';
 
-interface Props {
-  color?: [number, number, number];
-  amplitude?: number;
-  distance?: number;
-  enableMouseInteraction?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  color: () => [1, 1, 1] as [number, number, number],
-  amplitude: 1,
-  distance: 0,
-  enableMouseInteraction: false
+const props = defineProps({
+  /** Line colour as [r, g, b] in 0..1. Pass a stable array; the watcher compares by reference. */
+  color: { type: Array, default: () => [1, 1, 1] },
+  amplitude: { type: Number, default: 1 },
+  distance: { type: Number, default: 0 },
+  enableMouseInteraction: { type: Boolean, default: false }
 });
 
-const emit = defineEmits<{
-  unsupported: [];
-}>();
+const emit = defineEmits(['unsupported']);
 
-const containerRef = useTemplateRef<HTMLDivElement>('containerRef');
+const containerRef = useTemplateRef('containerRef');
 
 // Low-power devices render at most 30 fps
-const nav = navigator as Navigator & { deviceMemory?: number };
-const lowPower = (nav.hardwareConcurrency ?? 8) <= 4 || (nav.deviceMemory ?? 8) <= 4;
+const lowPower = (navigator.hardwareConcurrency ?? 8) <= 4 || (navigator.deviceMemory ?? 8) <= 4;
 const minFrameMs = lowPower ? 1000 / 30 : 0;
 let lastFrame = 0;
 
-let renderer: Renderer | null = null;
-let gl: OGLRenderingContext | null = null;
-let program: Program | null = null;
-let mesh: Mesh | null = null;
-let animationId: number | null = null;
+let renderer = null;
+let gl = null;
+let program = null;
+let mesh = null;
+let animationId = null;
 let currentMouse = [0.5, 0.5];
 let targetMouse = [0.5, 0.5];
 let currentAmplitude = props.amplitude;
 let targetAmplitude = props.amplitude;
 let currentDistance = props.distance;
 let targetDistance = props.distance;
-let currentColor = [...props.color] as [number, number, number];
-let targetColor = [...props.color] as [number, number, number];
+let currentColor = [...props.color];
+let targetColor = [...props.color];
 
 const vertexShader = `
 attribute vec2 position;
@@ -175,7 +173,7 @@ const resize = () => {
   program.uniforms.iResolution.value.b = clientWidth / clientHeight;
 };
 
-const handleMouseMove = (e: MouseEvent) => {
+const handleMouseMove = (e) => {
   targetMouse = [e.clientX / window.innerWidth, 1.0 - e.clientY / window.innerHeight];
 };
 
@@ -204,7 +202,7 @@ const handleVisibility = () => {
   }
 };
 
-const update = (t: number) => {
+const update = (t) => {
   if (!program || !renderer || !mesh) return;
 
   animationId = requestAnimationFrame(update);
@@ -279,7 +277,7 @@ const initializeScene = () => {
 
   mesh = new Mesh(gl, { geometry, program });
 
-  const canvas = gl.canvas as HTMLCanvasElement;
+  const canvas = gl.canvas;
   canvas.style.width = '100%';
   canvas.style.height = '100%';
   canvas.style.display = 'block';
@@ -325,8 +323,8 @@ const cleanup = () => {
   targetAmplitude = props.amplitude;
   currentDistance = props.distance;
   targetDistance = props.distance;
-  currentColor = [...props.color] as [number, number, number];
-  targetColor = [...props.color] as [number, number, number];
+  currentColor = [...props.color];
+  targetColor = [...props.color];
 };
 
 onMounted(() => {
@@ -349,10 +347,9 @@ watch(
 watch(
   [() => props.color, () => props.amplitude, () => props.distance],
   () => {
-    targetColor = [...props.color] as [number, number, number];
+    targetColor = [...props.color];
     targetAmplitude = props.amplitude;
     targetDistance = props.distance;
-  },
-  { deep: true }
+  }
 );
 </script>

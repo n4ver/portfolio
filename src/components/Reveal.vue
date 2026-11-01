@@ -1,28 +1,29 @@
-<script setup lang="ts">
+<script setup>
+/*
+ * Fade-up reveal on first scroll into view.
+ * Originally adapted from Vue Bits' AnimatedContent (https://github.com/DavidHDev/vue-bits),
+ * Copyright (c) 2025 David Haz, MIT + Commons Clause, see ./LICENSE-vue-bits.md.
+ * Rewritten without GSAP: content is visible by default and is only hidden once the
+ * observer is confirmed active, so a failed script never leaves a blank page.
+ * Styles live in style.css (.reveal-pending / .reveal-in).
+ */
 import { onMounted, onUnmounted, watch, useTemplateRef } from 'vue';
-import { usePrefersReducedMotion } from './composables/usePrefersReducedMotion.js';
+import { usePrefersReducedMotion } from '../composables/usePrefersReducedMotion.js';
 
-// Fade-up reveal on first scroll into view. Content is visible by default and is
-// only hidden once the observer is confirmed active, so a failed script never
-// leaves a blank page. Styles live in style.css (.reveal-pending / .reveal-in).
-
-interface AnimatedContentProps {
-  distance?: number;
-  duration?: number;
-  delay?: number;
-  threshold?: number;
-}
-
-const props = withDefaults(defineProps<AnimatedContentProps>(), {
-  distance: 100,
-  duration: 0.8,
-  delay: 0,
-  threshold: 0.1
+const props = defineProps({
+  /** Start offset in px */
+  distance: { type: Number, default: 100 },
+  /** Seconds */
+  duration: { type: Number, default: 0.8 },
+  /** Seconds */
+  delay: { type: Number, default: 0 },
+  /** Fraction of the element that must be visible */
+  threshold: { type: Number, default: 0.1 }
 });
 
-const containerRef = useTemplateRef<HTMLDivElement>('containerRef');
+const containerRef = useTemplateRef('containerRef');
 const reducedMotion = usePrefersReducedMotion();
-let observer: IntersectionObserver | null = null;
+let observer = null;
 
 const reveal = () => {
   observer?.disconnect();

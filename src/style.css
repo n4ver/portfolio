@@ -2,6 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Theme tokens (RGB triplets, used as rgb(var(--x) / <alpha>) via tailwind.config.js).
+ * The corrupted theme is switched on by html[data-theme="corrupted"] (useSecretTheme.js).
+ */
+:root {
+  --bg: 15 23 42;            /* slate-900 */
+  --text: 209 213 219;       /* gray-300: body copy */
+  --accent: 16 185 129;      /* terminal green: headings, prompt, dates, hovers */
+  --secondary: 245 158 11;   /* amber: company/dates line, tech lists, notes */
+  --emphasis: 245 158 11;    /* amber: terminal boot tag */
+  --muted: 156 163 175;      /* gray-400: terminal boot line */
+  --log: 156 163 175;        /* gray-400: terminal output */
+  --tag: 245 158 11;         /* amber: tag chip text */
+  --tag-border: 245 158 11;  /* amber: tag chip border */
+  --link: 16 185 129;        /* green: contact button text */
+  --on-accent: 15 23 42;     /* text on a filled accent button */
+  --dot: 75 85 99;           /* gray-600: education timeline dot */
+  --glow: 255 255 255 / 0.05;
+}
+
+:root[data-theme="corrupted"] {
+  --bg: 42 15 15;
+  --text: 254 202 202;       /* red-200 */
+  --accent: 239 68 68;       /* red-500 */
+  --secondary: 248 113 113;  /* red-400 */
+  --emphasis: 239 68 68;     /* red-500 */
+  --muted: 252 165 165;      /* red-300 */
+  --log: 248 113 113;        /* red-400 */
+  --tag: 252 165 165;        /* red-300 */
+  --tag-border: 239 68 68;   /* red-500 */
+  --link: 254 202 202;       /* red-200 */
+  --on-accent: 0 0 0;
+  --dot: 239 68 68;          /* red-500 */
+  --glow: 255 90 90 / 0.08;
+}
+
 /* Fira Code (SIL OFL 1.1, see public/fonts/OFL.txt), self-hosted latin subset */
 @font-face {
   font-family: 'Fira Code';
@@ -22,7 +58,7 @@
 }
 
 body {
-  @apply bg-terminal-bg text-gray-300 font-mono antialiased selection:bg-terminal-accent selection:text-terminal-bg;
+  @apply bg-theme-bg text-gray-300 font-mono antialiased selection:bg-terminal-accent selection:text-terminal-bg;
 }
 
 /* Visible keyboard focus on every interactive element */
@@ -45,6 +81,15 @@ body {
     transform var(--reveal-duration, 0.8s) cubic-bezier(0.215, 0.61, 0.355, 1) var(--reveal-delay, 0s);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .reveal-pending,
+  .reveal-in {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 @media print {
   .reveal-pending {
     opacity: 1 !important;
@@ -55,10 +100,6 @@ body {
 /* Theme background lives on the page itself so native scrolling shows it everywhere */
 body {
   transition: background-color 1s, color 1s;
-}
-
-html[data-theme="corrupted"] body {
-  background-color: #2a0f0f;
 }
 
 /* Anchor targets clear the reveal offset and leave breathing room at the top */
