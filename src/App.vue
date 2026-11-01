@@ -7,6 +7,9 @@ import { experience } from './data/experience.js';
 import { projects, coursework } from './data/projects.js';
 import { education } from './data/education.js';
 import { skills } from './data/skills.js';
+import { usePrefersReducedMotion } from './composables/usePrefersReducedMotion.js';
+
+const reducedMotion = usePrefersReducedMotion()
 
 const latestJob = experience[0]
 
@@ -42,9 +45,18 @@ const typedText = ref('')
 let typewriterTimer = null
 
 onMounted(() => {
+  if (reducedMotion.value) {
+    typedText.value = fullText
+    return
+  }
   typewriterTimer = window.setInterval(() => {
     const nextIndex = typedText.value.length
-    if (nextIndex < fullText.length) {
+    if (reducedMotion.value) {
+      // Preference turned on mid-typing: show the full line and stop
+      typedText.value = fullText
+      clearInterval(typewriterTimer)
+      typewriterTimer = null
+    } else if (nextIndex < fullText.length) {
       typedText.value += fullText.charAt(nextIndex)
     } else if (typewriterTimer) {
       clearInterval(typewriterTimer)
@@ -116,23 +128,26 @@ const scrollContainer = ref(null)
 
 <template>
   <div :class="['fixed inset-0 isolate w-full overflow-hidden transition-colors duration-1000', isCorrupted ? 'bg-[#2a0f0f] text-red-200' : 'bg-terminal-bg text-gray-300']">
-    <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-      <Threads class="absolute inset-0 h-full w-full opacity-50"
+    <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+      <Threads v-if="!reducedMotion" class="absolute inset-0 h-full w-full opacity-50"
         :color="isCorrupted ? [1, 0.35, 0.35] : [1, 1, 1]"
         :amplitude="threadAmplitude"
         :distance="threadDistance"
         :enableMouseInteraction="threadMouseInteraction"
       />
     </div>
-    <div ref="scrollContainer" class="scroll-shell relative z-10 h-full overflow-y-auto overflow-x-hidden scroll-smooth">
+    <div ref="scrollContainer" class="scroll-shell relative z-10 h-full overflow-y-auto overflow-x-hidden motion-safe:scroll-smooth">
+      <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-20 focus:px-4 focus:py-2 focus:bg-terminal-bg focus:text-white">Skip to content</a>
       <div class="p-6 md:p-16 max-w-4xl mx-auto min-h-full">
       <AnimatedContent :scroller="scrollContainer" :delay="0.05" :distance="60" class="mb-16 border-b border-gray-700 pb-8">
       <header>
-        <h1 class="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
-          {{ profile.name }}
-          <span @click="mineBytes"
-                :class="['animate-pulse cursor-pointer select-none', isCorrupted ? 'text-red-500' : 'text-terminal-green']">_</span>
-        </h1>
+        <div class="flex items-baseline gap-3 mb-2">
+          <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight">{{ profile.name }}</h1>
+          <button type="button" @click="mineBytes" aria-label="Mine an encrypted byte"
+                  :class="['text-4xl md:text-5xl font-bold leading-none px-1 cursor-pointer select-none motion-safe:animate-pulse', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
+            <span aria-hidden="true">_</span>
+          </button>
+        </div>
         <p class="text-lg md:text-xl text-gray-300 mb-2">{{ profile.role }}</p>
         <p class="text-sm mb-2">
           <span :class="isCorrupted ? 'text-red-400' : 'text-terminal-accent'">Latest:</span>
@@ -144,27 +159,31 @@ const scrollContainer = ref(null)
           </li>
         </ul>
 
-        <ul class="flex flex-wrap gap-3">
-          <li v-for="link in contactLinks" :key="link.href">
-            <a :href="link.href"
-               :target="link.external ? '_blank' : undefined"
-               :rel="link.external ? 'noopener' : undefined"
-               :class="['inline-flex items-center px-4 py-2 text-sm font-bold border transition-colors', isCorrupted ? 'border-red-500/60 hover:bg-red-500 hover:text-black' : 'border-terminal-green/60 text-terminal-green hover:bg-terminal-green hover:text-terminal-bg']">
-              {{ link.label }}
-            </a>
-          </li>
-        </ul>
+        <nav aria-label="Contact">
+          <ul class="flex flex-wrap gap-3">
+            <li v-for="link in contactLinks" :key="link.href">
+              <a :href="link.href"
+                 :target="link.external ? '_blank' : undefined"
+                 :rel="link.external ? 'noopener' : undefined"
+                 :class="['inline-flex items-center px-4 py-2 text-sm font-bold border transition-colors', isCorrupted ? 'border-red-500/60 hover:bg-red-500 hover:text-black' : 'border-terminal-green/60 text-terminal-green hover:bg-terminal-green hover:text-terminal-bg']">
+                {{ link.label }}<span v-if="link.external" class="sr-only"> (opens in new tab)</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
 
-        <p v-if="isCorrupted" class="text-red-400 font-bold fade-in mt-6">
-          [CONCEPTUALIZATION: Success] — The system is yours. You have extracted {{ bytesMined }} encrypted bytes.
-        </p>
+        <div role="status">
+          <p v-if="isCorrupted" class="text-red-400 font-bold fade-in mt-6">
+            [CONCEPTUALIZATION: Success] — The system is yours. You have extracted {{ bytesMined }} encrypted bytes.
+          </p>
+        </div>
       </header>
       </AnimatedContent>
 
-      <main class="space-y-16">
+      <main id="main" tabindex="-1" class="space-y-16 focus:outline-none">
         <AnimatedContent :scroller="scrollContainer" :delay="0.1" :distance="60">
-        <section>
-          <h2 :class="headingClass">
+        <section aria-labelledby="skills-heading">
+          <h2 id="skills-heading" :class="headingClass">
             <span class="mr-2" aria-hidden="true">/></span> Skills
           </h2>
           <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -179,14 +198,14 @@ const scrollContainer = ref(null)
         </AnimatedContent>
 
         <AnimatedContent :scroller="scrollContainer" :delay="0.1" :distance="60">
-        <section>
-          <h2 :class="headingClass">
+        <section aria-labelledby="experience-heading">
+          <h2 id="experience-heading" :class="headingClass">
             <span class="mr-2" aria-hidden="true">/></span> Experience
           </h2>
 
           <div class="space-y-8">
-            <article v-for="job in experience" :key="job.company" class="relative pl-6 border-l border-gray-700">
-              <div class="absolute w-3 h-3 bg-gray-600 rounded-full -left-[6.5px] top-1.5"></div>
+            <article v-for="job in experience" :key="job.company" class="relative pl-6 pr-4 py-4 border-l border-gray-700 bg-gray-800/30">
+              <div class="absolute w-3 h-3 bg-gray-600 rounded-full -left-[6.5px] top-5" aria-hidden="true"></div>
               <h3 class="text-xl font-bold text-white">{{ job.role }}</h3>
               <p :class="['mb-2', isCorrupted ? 'text-red-400' : 'text-terminal-accent']">{{ job.company }} | {{ job.dates }}</p>
               <ul class="text-sm list-disc pl-5 space-y-1 mb-3">
@@ -201,8 +220,8 @@ const scrollContainer = ref(null)
         </AnimatedContent>
 
         <AnimatedContent :scroller="scrollContainer" :delay="0.15" :distance="60">
-        <section>
-          <h2 :class="headingClass">
+        <section aria-labelledby="projects-heading">
+          <h2 id="projects-heading" :class="headingClass">
             <span class="mr-2" aria-hidden="true">/></span> Projects
           </h2>
 
@@ -215,10 +234,10 @@ const scrollContainer = ref(null)
               <p class="text-sm mb-6 flex-1">{{ project.outcome }}</p>
               <div class="flex flex-wrap gap-x-6 gap-y-2">
                 <a :href="project.repo" target="_blank" rel="noopener" class="inline-flex items-center text-sm font-bold hover:text-white transition-colors">
-                  Access Source <span class="ml-2 group-hover:translate-x-1 transition-transform">-></span>
+                  Access Source<span class="sr-only"> for {{ project.title }} on GitHub (opens in new tab)</span> <span class="ml-2 motion-safe:group-hover:translate-x-1 motion-safe:transition-transform" aria-hidden="true">-></span>
                 </a>
                 <a v-if="project.demo" :href="project.demo" target="_blank" rel="noopener" class="inline-flex items-center text-sm font-bold hover:text-white transition-colors">
-                  Live Demo <span class="ml-2">-></span>
+                  Live Demo<span class="sr-only"> of {{ project.title }} (opens in new tab)</span> <span class="ml-2" aria-hidden="true">-></span>
                 </a>
               </div>
             </article>
@@ -228,7 +247,7 @@ const scrollContainer = ref(null)
           <ul class="space-y-3">
             <li v-for="item in coursework" :key="item.title" class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1 border-b border-gray-700/50 pb-2">
               <span>
-                <a :href="item.repo" target="_blank" rel="noopener" class="font-bold text-white hover:underline">{{ item.title }}</a>
+                <a :href="item.repo" target="_blank" rel="noopener" class="font-bold text-white hover:underline">{{ item.title }}<span class="sr-only"> on GitHub (opens in new tab)</span></a>
                 <span class="text-sm text-gray-400"> — {{ item.outcome }}</span>
               </span>
               <span :class="['text-xs whitespace-nowrap', isCorrupted ? 'text-red-400' : 'text-terminal-accent']">{{ item.tags.join(', ') }}</span>
@@ -238,22 +257,22 @@ const scrollContainer = ref(null)
         </AnimatedContent>
 
         <AnimatedContent :scroller="scrollContainer" :delay="0.25" :distance="60">
-        <section>
-          <h2 :class="headingClass">
+        <section aria-labelledby="education-heading">
+          <h2 id="education-heading" :class="headingClass">
             <span class="mr-2" aria-hidden="true">/></span> Education
           </h2>
 
           <ul class="space-y-8 relative border-l border-gray-700/50 pl-6 ml-2">
 
             <li v-for="edu in education" :key="edu.institute" class="relative group">
-              <div :class="['absolute w-2.5 h-2.5 rounded-full -left-[30px] top-1.5 transition-colors duration-300', isCorrupted ? 'bg-red-500' : 'bg-gray-600 group-hover:bg-terminal-green']"></div>
+              <div aria-hidden="true" :class="['absolute w-2.5 h-2.5 rounded-full -left-[30px] top-1.5 transition-colors duration-300', isCorrupted ? 'bg-red-500' : 'bg-gray-600 group-hover:bg-terminal-green']"></div>
 
               <div class="flex flex-col md:flex-row md:justify-between items-start gap-2 md:gap-4">
 
                 <div class="mb-2 md:mb-0 flex-1">
                   <h3 class="text-lg font-bold text-white tracking-wide">{{ edu.institute }}</h3>
                   <p v-for="note in edu.notes" :key="note" :class="['text-xs mt-2 flex items-start leading-relaxed', isCorrupted ? 'text-red-400/80' : 'text-terminal-accent/80']">
-                    <span class="mr-2 opacity-50 font-mono">↳</span>
+                    <span class="mr-2 opacity-50 font-mono" aria-hidden="true">↳</span>
                     {{ note }}
                   </p>
                 </div>
@@ -279,31 +298,32 @@ const scrollContainer = ref(null)
         <div class="bg-black/50 p-4 rounded-md border border-gray-800">
           <p :class="['mb-2', isCorrupted ? 'text-red-300' : 'text-gray-400']">
             <span :class="['font-bold', isCorrupted ? 'text-red-500' : 'text-terminal-accent']">{{ terminal.bootLine.tag }}</span>
-            — {{ typedText }}<span v-if="typedText.length < fullText.length" class="animate-pulse">|</span>
+            — {{ typedText }}<span v-if="typedText.length < fullText.length" class="motion-safe:animate-pulse" aria-hidden="true">|</span>
           </p>
-          <div class="mb-2 space-y-1 h-32 overflow-y-auto flex flex-col justify-end">
+          <div role="log" aria-live="polite" aria-label="Terminal output" class="mb-2 space-y-1 h-32 overflow-y-auto flex flex-col justify-end">
             <p v-for="(line, index) in terminalOutput" :key="index" :class="['break-words', isCorrupted ? 'text-red-400' : 'text-gray-400']">
               {{ line }}
             </p>
           </div>
-          <div class="flex items-center">
-            <span :class="['mr-2', isCorrupted ? 'text-red-500' : 'text-terminal-green']">guest@n4ver:~$</span>
+          <form class="flex items-center" @submit.prevent="executeCommand">
+            <label for="terminal-input" class="sr-only">Terminal command (type help for a list)</label>
+            <span :class="['mr-2', isCorrupted ? 'text-red-500' : 'text-terminal-green']" aria-hidden="true">guest@n4ver:~$</span>
             <input
+              id="terminal-input"
               v-model="terminalInput"
-              @keyup.enter="executeCommand"
               type="text"
-              class="bg-transparent border-none outline-none flex-1 min-w-0 text-white"
+              class="bg-transparent border-none flex-1 min-w-0 text-white placeholder:text-gray-400"
               placeholder="enter command..."
               autocomplete="off"
               spellcheck="false"
             />
-          </div>
+          </form>
         </div>
 
-        <div class="mt-4 flex justify-between text-gray-500">
+        <div class="mt-4 flex justify-between text-gray-400">
           <p>SYSTEM.VERSION: 1.0.0</p>
           <div class="space-x-4">
-            <a :href="profile.links.github" target="_blank" rel="noopener" class="hover:text-white transition-colors">GitHub</a>
+            <a :href="profile.links.github" target="_blank" rel="noopener" class="hover:text-white transition-colors">GitHub<span class="sr-only"> (opens in new tab)</span></a>
           </div>
         </div>
       </footer>
@@ -315,8 +335,10 @@ const scrollContainer = ref(null)
 
 <style scoped>
 /* Simple fade-in animation for the secret text */
-.fade-in {
-  animation: fadeIn 1s ease-in-out;
+@media (prefers-reduced-motion: no-preference) {
+  .fade-in {
+    animation: fadeIn 1s ease-in-out;
+  }
 }
 
 .scroll-shell {
