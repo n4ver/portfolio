@@ -2,6 +2,7 @@
 import { onMounted, onUnmounted, watch, useTemplateRef } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { usePrefersReducedMotion } from './composables/usePrefersReducedMotion.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -39,6 +40,7 @@ const emit = defineEmits<{
 }>();
 
 const containerRef = useTemplateRef<HTMLDivElement>('containerRef');
+const reducedMotion = usePrefersReducedMotion();
 let tween: gsap.core.Tween | null = null;
 
 const createAnimation = () => {
@@ -50,6 +52,11 @@ const createAnimation = () => {
   const startPct = (1 - props.threshold) * 100;
 
   tween?.kill();
+
+  if (reducedMotion.value) {
+    gsap.set(el, { clearProps: 'all' });
+    return;
+  }
 
   gsap.set(el, {
     [axis]: offset,
@@ -91,7 +98,8 @@ watch(
     props.scale,
     props.threshold,
     props.delay,
-    props.scroller
+    props.scroller,
+    reducedMotion.value
   ],
   () => {
     createAnimation();
