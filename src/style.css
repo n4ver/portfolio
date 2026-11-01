@@ -30,3 +30,38 @@ body {
   outline: 2px solid theme('colors.terminal.accent');
   outline-offset: 2px;
 }
+
+/* Scroll reveal (AnimatedContent.vue). Only applied after JS confirms the observer. */
+.reveal-pending {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance, 60px));
+}
+
+.reveal-in {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--reveal-duration, 0.8s) cubic-bezier(0.215, 0.61, 0.355, 1) var(--reveal-delay, 0s),
+    transform var(--reveal-duration, 0.8s) cubic-bezier(0.215, 0.61, 0.355, 1) var(--reveal-delay, 0s);
+}
+
+@media print {
+  .reveal-pending {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Theme background lives on the page itself so native scrolling shows it everywhere */
+body {
+  transition: background-color 1s, color 1s;
+}
+
+html[data-theme="corrupted"] body {
+  background-color: #2a0f0f;
+}
+
+/* Anchor targets clear the reveal offset and leave breathing room at the top */
+section > h2[id] {
+  scroll-margin-top: 5rem;
+}

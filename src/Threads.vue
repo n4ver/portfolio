@@ -21,7 +21,17 @@ const props = withDefaults(defineProps<Props>(), {
   enableMouseInteraction: false
 });
 
+const emit = defineEmits<{
+  unsupported: [];
+}>();
+
 const containerRef = useTemplateRef<HTMLDivElement>('containerRef');
+
+// Low-power devices render at most 30 fps
+const nav = navigator as Navigator & { deviceMemory?: number };
+const lowPower = (nav.hardwareConcurrency ?? 8) <= 4 || (nav.deviceMemory ?? 8) <= 4;
+const minFrameMs = lowPower ? 1000 / 30 : 0;
+let lastFrame = 0;
 
 let renderer: Renderer | null = null;
 let gl: OGLRenderingContext | null = null;
@@ -59,7 +69,7 @@ uniform vec2 uMouse;
 
 #define PI 3.1415926538
 
-const int u_line_count = 40;
+const int u_line_count = 16;
 const float u_line_width = 7.0;
 const float u_line_blur = 10.0;
 
@@ -166,20 +176,40 @@ const resize = () => {
 };
 
 const handleMouseMove = (e: MouseEvent) => {
-  if (!containerRef.value) return;
-
-  const rect = containerRef.value.getBoundingClientRect();
-  const x = (e.clientX - rect.left) / rect.width;
-  const y = 1.0 - (e.clientY - rect.top) / rect.height;
-  targetMouse = [x, y];
+  targetMouse = [e.clientX / window.innerWidth, 1.0 - e.clientY / window.innerHeight];
 };
 
 const handleMouseLeave = () => {
   targetMouse = [0.5, 0.5];
 };
 
+const attachMouse = () => {
+  window.addEventListener('mousemove', handleMouseMove, { passive: true });
+  document.documentElement.addEventListener('mouseleave', handleMouseLeave);
+};
+
+const detachMouse = () => {
+  window.removeEventListener('mousemove', handleMouseMove);
+  document.documentElement.removeEventListener('mouseleave', handleMouseLeave);
+  targetMouse = [0.5, 0.5];
+};
+
+// Stop rendering while the tab is hidden
+const handleVisibility = () => {
+  if (document.hidden) {
+    if (animationId) cancelAnimationFrame(animationId);
+    animationId = null;
+  } else if (!animationId && renderer) {
+    animationId = requestAnimationFrame(update);
+  }
+};
+
 const update = (t: number) => {
   if (!program || !renderer || !mesh) return;
+
+  animationId = requestAnimationFrame(update);
+  if (t - lastFrame < minFrameMs) return;
+  lastFrame = t;
 
   const transitionSpeed = 0.08;
 
@@ -208,7 +238,6 @@ const update = (t: number) => {
 
   program.uniforms.iTime.value = t * 0.001;
   renderer.render({ scene: mesh });
-  animationId = requestAnimationFrame(update);
 };
 
 const initializeScene = () => {
@@ -217,7 +246,16 @@ const initializeScene = () => {
   cleanup();
 
   const container = containerRef.value;
-  renderer = new Renderer({ alpha: true });
+  try {
+    renderer = new Renderer({ alpha: true, dpr: 1 });
+  } catch {
+    renderer = null;
+  }
+  if (!renderer?.gl) {
+    renderer = null;
+    emit('unsupported');
+    return;
+  }
   gl = renderer.gl;
   gl.clearColor(0, 0, 0, 0);
   gl.enable(gl.BLEND);
@@ -249,6 +287,8 @@ const initializeScene = () => {
   container.appendChild(canvas);
 
   window.addEventListener('resize', resize);
+  document.addEventListener('visibilitychange', handleVisibility);
+  if (props.enableMouseInteraction) attachMouse();
 
   resize();
   animationId = requestAnimationFrame(update);
@@ -261,6 +301,8 @@ const cleanup = () => {
   }
 
   window.removeEventListener('resize', resize);
+  document.removeEventListener('visibilitychange', handleVisibility);
+  detachMouse();
 
   if (containerRef.value) {
     const canvas = containerRef.value.querySelector('canvas');
@@ -296,7 +338,16 @@ onUnmounted(() => {
 });
 
 watch(
-  [() => props.color, () => props.amplitude, () => props.distance, () => props.enableMouseInteraction],
+  () => props.enableMouseInteraction,
+  (enabled) => {
+    if (!renderer) return;
+    if (enabled) attachMouse();
+    else detachMouse();
+  }
+);
+
+watch(
+  [() => props.color, () => props.amplitude, () => props.distance],
   () => {
     targetColor = [...props.color] as [number, number, number];
     targetAmplitude = props.amplitude;

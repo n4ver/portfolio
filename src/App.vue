@@ -1,7 +1,6 @@
 <script setup>
-import Threads from "./Threads.vue";
 import AnimatedContent from "./AnimatedContent.vue";
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, defineAsyncComponent, ref, watch, onMounted, onUnmounted } from 'vue';
 import { profile, terminal } from './data/profile.js';
 import { experience } from './data/experience.js';
 import { projects, coursework } from './data/projects.js';
@@ -9,7 +8,21 @@ import { education } from './data/education.js';
 import { skills } from './data/skills.js';
 import { usePrefersReducedMotion } from './composables/usePrefersReducedMotion.js';
 
+// WebGL background: split into its own chunk and mounted after first paint
+const Threads = defineAsyncComponent(() => import('./Threads.vue'))
+
 const reducedMotion = usePrefersReducedMotion()
+const threadsReady = ref(false)
+const lowPowerTouch = ref(false)
+const webglFailed = ref(false)
+const showFallback = computed(() => reducedMotion.value || lowPowerTouch.value || webglFailed.value)
+const showThreads = computed(() => threadsReady.value && !showFallback.value)
+
+onMounted(() => {
+  lowPowerTouch.value = window.matchMedia('(pointer: coarse)').matches && (navigator.hardwareConcurrency ?? 8) <= 4
+  const whenIdle = window.requestIdleCallback ?? ((cb) => window.setTimeout(cb, 200))
+  whenIdle(() => { threadsReady.value = true })
+})
 
 const latestJob = experience[0]
 
@@ -34,6 +47,12 @@ const mineBytes = () => {
 const threadAmplitude = computed(() => (isCorrupted.value ? 14 : 5))
 const threadDistance = computed(() => (isCorrupted.value ? 0.45 : 0))
 const threadMouseInteraction = computed(() => isCorrupted.value)
+
+// Page background follows the theme (see style.css)
+watch(isCorrupted, (corrupted) => {
+  if (corrupted) document.documentElement.dataset.theme = 'corrupted'
+  else delete document.documentElement.dataset.theme
+})
 
 const headingClass = computed(() => ['text-2xl font-bold mb-6 flex items-center', isCorrupted.value ? 'text-red-500' : 'text-terminal-green'])
 const tagClass = computed(() => ['text-xs px-2 py-0.5 border', isCorrupted.value ? 'border-red-500/40 text-red-300' : 'border-terminal-accent/40 text-terminal-accent'])
@@ -122,24 +141,23 @@ const executeCommand = () => {
   }
   terminalInput.value = ''
 }
-
-const scrollContainer = ref(null)
 </script>
 
 <template>
-  <div :class="['fixed inset-0 isolate w-full overflow-hidden transition-colors duration-1000', isCorrupted ? 'bg-[#2a0f0f] text-red-200' : 'bg-terminal-bg text-gray-300']">
-    <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-      <Threads v-if="!reducedMotion" class="absolute inset-0 h-full w-full opacity-50"
+  <div :class="['relative min-h-screen w-full overflow-x-hidden transition-colors duration-1000', isCorrupted ? 'text-red-200' : 'text-gray-300']">
+    <div class="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
+      <div v-if="showFallback" :class="['absolute inset-0', isCorrupted ? 'threads-fallback-corrupted' : 'threads-fallback']"></div>
+      <Threads v-if="showThreads" class="absolute inset-0 h-full w-full opacity-50"
+        @unsupported="webglFailed = true"
         :color="isCorrupted ? [1, 0.35, 0.35] : [1, 1, 1]"
         :amplitude="threadAmplitude"
         :distance="threadDistance"
         :enableMouseInteraction="threadMouseInteraction"
       />
     </div>
-    <div ref="scrollContainer" class="scroll-shell relative z-10 h-full overflow-y-auto overflow-x-hidden motion-safe:scroll-smooth">
       <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-20 focus:px-4 focus:py-2 focus:bg-terminal-bg focus:text-white">Skip to content</a>
-      <div class="p-6 md:p-16 max-w-4xl mx-auto min-h-full">
-      <AnimatedContent :scroller="scrollContainer" :delay="0.05" :distance="60" class="mb-16 border-b border-gray-700 pb-8">
+      <div class="p-6 md:p-16 max-w-4xl mx-auto">
+      <AnimatedContent :delay="0.05" :distance="60" class="mb-16 border-b border-gray-700 pb-8">
       <header>
         <div class="flex items-baseline gap-3 mb-2">
           <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight">{{ profile.name }}</h1>
@@ -181,7 +199,7 @@ const scrollContainer = ref(null)
       </AnimatedContent>
 
       <main id="main" tabindex="-1" class="space-y-16 focus:outline-none">
-        <AnimatedContent :scroller="scrollContainer" :delay="0.1" :distance="60">
+        <AnimatedContent :delay="0.1" :distance="60">
         <section aria-labelledby="skills-heading">
           <h2 id="skills-heading" :class="headingClass">
             <span class="mr-2" aria-hidden="true">/></span> Skills
@@ -197,7 +215,7 @@ const scrollContainer = ref(null)
         </section>
         </AnimatedContent>
 
-        <AnimatedContent :scroller="scrollContainer" :delay="0.1" :distance="60">
+        <AnimatedContent :delay="0.1" :distance="60">
         <section aria-labelledby="experience-heading">
           <h2 id="experience-heading" :class="headingClass">
             <span class="mr-2" aria-hidden="true">/></span> Experience
@@ -219,7 +237,7 @@ const scrollContainer = ref(null)
         </section>
         </AnimatedContent>
 
-        <AnimatedContent :scroller="scrollContainer" :delay="0.15" :distance="60">
+        <AnimatedContent :delay="0.15" :distance="60">
         <section aria-labelledby="projects-heading">
           <h2 id="projects-heading" :class="headingClass">
             <span class="mr-2" aria-hidden="true">/></span> Projects
@@ -256,7 +274,7 @@ const scrollContainer = ref(null)
         </section>
         </AnimatedContent>
 
-        <AnimatedContent :scroller="scrollContainer" :delay="0.25" :distance="60">
+        <AnimatedContent :delay="0.25" :distance="60">
         <section aria-labelledby="education-heading">
           <h2 id="education-heading" :class="headingClass">
             <span class="mr-2" aria-hidden="true">/></span> Education
@@ -293,7 +311,7 @@ const scrollContainer = ref(null)
 
       </main>
 
-      <AnimatedContent :scroller="scrollContainer" :delay="0.3" :distance="50">
+      <AnimatedContent :delay="0.3" :distance="50">
       <footer class="mt-24 pt-8 border-t border-gray-700 font-mono text-sm">
         <div class="bg-black/50 p-4 rounded-md border border-gray-800">
           <p :class="['mb-2', isCorrupted ? 'text-red-300' : 'text-gray-400']">
@@ -329,7 +347,6 @@ const scrollContainer = ref(null)
       </footer>
       </AnimatedContent>
       </div>
-    </div>
   </div>
 </template>
 
@@ -341,13 +358,13 @@ const scrollContainer = ref(null)
   }
 }
 
-.scroll-shell {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+/* Static stand-in when the WebGL background is skipped */
+.threads-fallback {
+  background: radial-gradient(ellipse 70% 50% at 75% 35%, rgb(255 255 255 / 0.05), transparent 70%);
 }
 
-.scroll-shell::-webkit-scrollbar {
-  display: none;
+.threads-fallback-corrupted {
+  background: radial-gradient(ellipse 70% 50% at 75% 35%, rgb(255 90 90 / 0.08), transparent 70%);
 }
 
 @keyframes fadeIn {

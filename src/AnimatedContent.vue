@@ -1,124 +1,68 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, watch, useTemplateRef } from 'vue';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { usePrefersReducedMotion } from './composables/usePrefersReducedMotion.js';
 
-gsap.registerPlugin(ScrollTrigger);
+// Fade-up reveal on first scroll into view. Content is visible by default and is
+// only hidden once the observer is confirmed active, so a failed script never
+// leaves a blank page. Styles live in style.css (.reveal-pending / .reveal-in).
 
 interface AnimatedContentProps {
   distance?: number;
-  direction?: 'vertical' | 'horizontal';
-  reverse?: boolean;
   duration?: number;
-  ease?: string | ((progress: number) => number);
-  initialOpacity?: number;
-  animateOpacity?: boolean;
-  scale?: number;
-  threshold?: number;
   delay?: number;
-  className?: string;
-  scroller?: string | Element | Window;
+  threshold?: number;
 }
 
 const props = withDefaults(defineProps<AnimatedContentProps>(), {
   distance: 100,
-  direction: 'vertical',
-  reverse: false,
   duration: 0.8,
-  ease: 'power3.out',
-  initialOpacity: 0,
-  animateOpacity: true,
-  scale: 1,
-  threshold: 0.1,
   delay: 0,
-  className: ''
+  threshold: 0.1
 });
-
-const emit = defineEmits<{
-  complete: [];
-}>();
 
 const containerRef = useTemplateRef<HTMLDivElement>('containerRef');
 const reducedMotion = usePrefersReducedMotion();
-let tween: gsap.core.Tween | null = null;
+let observer: IntersectionObserver | null = null;
 
-const createAnimation = () => {
-  const el = containerRef.value;
-  if (!el) return;
-
-  const axis = props.direction === 'horizontal' ? 'x' : 'y';
-  const offset = props.reverse ? -props.distance : props.distance;
-  const startPct = (1 - props.threshold) * 100;
-
-  tween?.kill();
-
-  if (reducedMotion.value) {
-    gsap.set(el, { clearProps: 'all' });
-    return;
-  }
-
-  gsap.set(el, {
-    [axis]: offset,
-    scale: props.scale,
-    opacity: props.animateOpacity ? props.initialOpacity : 1
-  });
-
-  tween = gsap.to(el, {
-    [axis]: 0,
-    scale: 1,
-    opacity: 1,
-    duration: props.duration,
-    ease: props.ease,
-    delay: props.delay,
-    onComplete: () => emit('complete'),
-    scrollTrigger: {
-      trigger: el,
-      scroller: props.scroller,
-      start: `top ${startPct}%`,
-      toggleActions: 'play none none none',
-      once: true
-    }
-  });
+const reveal = () => {
+  observer?.disconnect();
+  observer = null;
+  containerRef.value?.classList.replace('reveal-pending', 'reveal-in');
 };
 
 onMounted(() => {
-  createAnimation();
+  const el = containerRef.value;
+  if (!el || reducedMotion.value || !('IntersectionObserver' in window)) return;
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) reveal();
+    },
+    { threshold: props.threshold }
+  );
+  observer.observe(el);
+  el.classList.add('reveal-pending');
 });
 
-watch(
-  () => [
-    props.distance,
-    props.direction,
-    props.reverse,
-    props.duration,
-    props.ease,
-    props.initialOpacity,
-    props.animateOpacity,
-    props.scale,
-    props.threshold,
-    props.delay,
-    props.scroller,
-    reducedMotion.value
-  ],
-  () => {
-    createAnimation();
-  },
-  { deep: true }
-);
+watch(reducedMotion, (reduce) => {
+  if (reduce) reveal();
+});
 
 onUnmounted(() => {
-  tween?.kill();
-  tween = null;
+  observer?.disconnect();
+  observer = null;
 });
 </script>
 
 <template>
-  <div ref="containerRef" :class="`animated-content ${props.className}`">
+  <div
+    ref="containerRef"
+    :style="{
+      '--reveal-distance': `${props.distance}px`,
+      '--reveal-duration': `${props.duration}s`,
+      '--reveal-delay': `${props.delay}s`
+    }"
+  >
     <slot />
   </div>
 </template>
-
-<style scoped>
-/* GSAP will handle all transforms and opacity */
-</style>
