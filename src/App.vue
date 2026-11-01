@@ -38,9 +38,9 @@ import { skills } from './data/skills.js'
         <Reveal :delay="0.1" :distance="60">
           <section aria-labelledby="experience-heading">
             <SectionHeading id="experience-heading">Experience</SectionHeading>
-            <div class="space-y-8">
+            <ul class="space-y-8 relative border-l border-gray-700/50 pl-6 ml-2">
               <ExperienceItem v-for="job in experience" :key="job.company" :job="job" />
-            </div>
+            </ul>
           </section>
         </Reveal>
 
