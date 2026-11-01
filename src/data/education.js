@@ -15,7 +15,7 @@ export const education = [
     institute: 'Technical University of Munich',
     course: 'GEM Explorer Semester Exchange',
     dates: 'Oct 2026 – Mar 2027',
-    coursework: ['Data Networking', 'Network Security'],
+    coursework: ['Data Networking', 'Network Security', 'Software Defined Networking'],
     notes: []
   },
   {
@@ -23,6 +23,7 @@ export const education = [
     course: 'Dip in Cybersecurity & Digital Forensics',
     dates: 'Jan 2020 – May 2023',
     gpa: '3.56 / 4.0',
+    coursework: ['Cryptography, Ethical Hacking', 'Web Application Pen Testing'],
     notes: []
   }
 ]
