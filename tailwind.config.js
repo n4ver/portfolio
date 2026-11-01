@@ -8,7 +8,6 @@ export default {
     extend: {
       fontFamily: {
         mono: ['"Fira Code"', 'monospace'], // Terminal aesthetic
-        serif: ['"Merriweather"', 'serif'], // Other text
       },
       colors: {
         terminal: {
