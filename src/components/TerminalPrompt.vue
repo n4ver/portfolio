@@ -31,8 +31,8 @@ const commands = {
     window.open(props.profile.links.resume, '_blank', 'noopener')
     return [`Opening ${props.profile.links.resume} in a new tab...`]
   },
-  projects: () => props.projects.map(p => `${p.title}: ${p.repo}`),
-  skills: () => props.skills.map(s => `${s.group}: ${s.items.join(', ')}`),
+  projects: () => props.projects.map((p) => `${p.title}: ${p.repo}`),
+  skills: () => props.skills.map((s) => `${s.group}: ${s.items.join(', ')}`),
   'sudo rm -rf /': () => ['ERR: Permission denied. Nice try. Incident logged.']
 }
 
@@ -59,7 +59,12 @@ const executeCommand = () => {
       <span class="font-bold text-theme-emphasis">{{ terminal.bootLine.tag }}</span>
       — <TypewriterText :text="terminal.bootLine.text" />
     </p>
-    <div role="log" aria-live="polite" aria-label="Terminal output" class="mb-2 space-y-1 h-32 overflow-y-auto flex flex-col justify-end">
+    <div
+      role="log"
+      aria-live="polite"
+      aria-label="Terminal output"
+      class="mb-2 space-y-1 h-32 overflow-y-auto flex flex-col justify-end"
+    >
       <p v-for="entry in terminalOutput" :key="entry.id" class="break-words text-theme-log">
         {{ entry.text }}
       </p>

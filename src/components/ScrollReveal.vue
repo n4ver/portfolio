@@ -7,8 +7,8 @@
  * observer is confirmed active, so a failed script never leaves a blank page.
  * Styles live in style.css (.reveal-pending / .reveal-in).
  */
-import { onMounted, onUnmounted, watch, useTemplateRef } from 'vue';
-import { usePrefersReducedMotion } from '../composables/usePrefersReducedMotion.js';
+import { onMounted, onUnmounted, watch, useTemplateRef } from 'vue'
+import { usePrefersReducedMotion } from '../composables/usePrefersReducedMotion.js'
 
 const props = defineProps({
   /** Start offset in px */
@@ -19,40 +19,42 @@ const props = defineProps({
   delay: { type: Number, default: 0 },
   /** Fraction of the element that must be visible */
   threshold: { type: Number, default: 0.1 }
-});
+})
 
-const containerRef = useTemplateRef('containerRef');
-const reducedMotion = usePrefersReducedMotion();
-let observer = null;
+const containerRef = useTemplateRef('containerRef')
+const reducedMotion = usePrefersReducedMotion()
+let observer = null
 
 const reveal = () => {
-  observer?.disconnect();
-  observer = null;
-  containerRef.value?.classList.replace('reveal-pending', 'reveal-in');
-};
+  observer?.disconnect()
+  observer = null
+  containerRef.value?.classList.replace('reveal-pending', 'reveal-in')
+}
 
 onMounted(() => {
-  const el = containerRef.value;
-  if (!el || reducedMotion.value || !('IntersectionObserver' in window)) return;
+  const el = containerRef.value
+  if (!el || reducedMotion.value || !('IntersectionObserver' in window)) return
+  // Already on screen (prerendered and visible): don't hide it again after hydration
+  if (el.getBoundingClientRect().top < window.innerHeight) return
 
   observer = new IntersectionObserver(
     (entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) reveal();
+      if (entries.some((entry) => entry.isIntersecting)) reveal()
     },
     { threshold: props.threshold }
-  );
-  observer.observe(el);
-  el.classList.add('reveal-pending');
-});
+  )
+  observer.observe(el)
+  el.classList.add('reveal-pending')
+})
 
 watch(reducedMotion, (reduce) => {
-  if (reduce) reveal();
-});
+  if (reduce) reveal()
+})
 
 onUnmounted(() => {
-  observer?.disconnect();
-  observer = null;
-});
+  observer?.disconnect()
+  observer = null
+})
 </script>
 
 <template>

@@ -22,19 +22,23 @@ const settings = computed(() => (isCorrupted.value ? CORRUPTED : NORMAL))
 onMounted(() => {
   lowPowerTouch.value = window.matchMedia('(pointer: coarse)').matches && (navigator.hardwareConcurrency ?? 8) <= 4
   const whenIdle = window.requestIdleCallback ?? ((cb) => window.setTimeout(cb, 200))
-  whenIdle(() => { threadsReady.value = true })
+  whenIdle(() => {
+    threadsReady.value = true
+  })
 })
 </script>
 
 <template>
   <div class="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
     <div v-if="showFallback" class="threads-fallback absolute inset-0"></div>
-    <ThreadsBackground v-if="showThreads" class="absolute inset-0 h-full w-full opacity-50"
-      @unsupported="webglFailed = true"
+    <ThreadsBackground
+      v-if="showThreads"
+      class="absolute inset-0 h-full w-full opacity-50"
       :color="settings.color"
       :amplitude="settings.amplitude"
       :distance="settings.distance"
-      :enableMouseInteraction="isCorrupted"
+      :enable-mouse-interaction="isCorrupted"
+      @unsupported="webglFailed = true"
     />
   </div>
 </template>

@@ -9,7 +9,8 @@ const props = defineProps({
 })
 
 const reducedMotion = usePrefersReducedMotion()
-const typedText = ref('')
+// Full text in the prerendered HTML (readable without JS); typing starts after mount
+const typedText = ref(props.text)
 let timer = null
 
 const stop = () => {
@@ -20,10 +21,8 @@ const stop = () => {
 }
 
 onMounted(() => {
-  if (reducedMotion.value) {
-    typedText.value = props.text
-    return
-  }
+  if (reducedMotion.value) return
+  typedText.value = ''
   timer = window.setInterval(() => {
     const nextIndex = typedText.value.length
     if (reducedMotion.value) {
@@ -42,5 +41,8 @@ onUnmounted(stop)
 </script>
 
 <template>
-  <span>{{ typedText }}<span v-if="typedText.length < text.length" class="motion-safe:animate-pulse" aria-hidden="true">|</span></span>
+  <span
+    >{{ typedText
+    }}<span v-if="typedText.length < text.length" class="motion-safe:animate-pulse" aria-hidden="true">|</span></span
+  >
 </template>
