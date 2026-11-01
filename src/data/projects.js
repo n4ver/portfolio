@@ -2,13 +2,15 @@
 export const projects = [
   {
     title: 'TF2 Match Analytics Platform',
-    outcome: 'CQRS backend that ingests TF2 match logs, publishes domain events and materialises 10+ read-model projections for match, player and tournament queries, covered by 130+ pytest tests.',
+    outcome:
+      'CQRS backend that ingests TF2 match logs, publishes domain events and materialises 10+ read-model projections for match, player and tournament queries, covered by 130+ pytest tests.',
     tags: ['Python', 'FastAPI', 'RabbitMQ', 'PostgreSQL', 'Node.js', 'JWT'],
     repo: 'https://github.com/n4ver/logdashboard'
   },
   {
     title: 'E-sports Stream Dashboard',
-    outcome: 'Flask REST API and Vue SPA that ingests logs.tf match data and drives live-stream overlays for grassroots Team Fortress 2 broadcasts.',
+    outcome:
+      'Flask REST API and Vue SPA that ingests logs.tf match data and drives live-stream overlays for grassroots Team Fortress 2 broadcasts.',
     tags: ['Python', 'Flask', 'Vue', 'Vercel'],
     repo: 'https://github.com/n4ver/N4TV',
     demo: 'https://n4-tv.vercel.app'

@@ -11,8 +11,8 @@
  * Local changes: fewer lines, dpr 1, 30 fps cap on low-power devices, pause while
  * hidden, window-level mouse tracking, "unsupported" event when WebGL fails.
  */
-import { onMounted, onUnmounted, watch, useTemplateRef } from 'vue';
-import { Renderer, Program, Mesh, Triangle, Color } from 'ogl';
+import { onMounted, onUnmounted, watch, useTemplateRef } from 'vue'
+import { Renderer, Program, Mesh, Triangle, Color } from 'ogl'
 
 const props = defineProps({
   /** Line colour as [r, g, b] in 0..1. Pass a stable array; the watcher compares by reference. */
@@ -20,30 +20,30 @@ const props = defineProps({
   amplitude: { type: Number, default: 1 },
   distance: { type: Number, default: 0 },
   enableMouseInteraction: { type: Boolean, default: false }
-});
+})
 
-const emit = defineEmits(['unsupported']);
+const emit = defineEmits(['unsupported'])
 
-const containerRef = useTemplateRef('containerRef');
+const containerRef = useTemplateRef('containerRef')
 
 // Low-power devices render at most 30 fps
-const lowPower = (navigator.hardwareConcurrency ?? 8) <= 4 || (navigator.deviceMemory ?? 8) <= 4;
-const minFrameMs = lowPower ? 1000 / 30 : 0;
-let lastFrame = 0;
+const lowPower = (navigator.hardwareConcurrency ?? 8) <= 4 || (navigator.deviceMemory ?? 8) <= 4
+const minFrameMs = lowPower ? 1000 / 30 : 0
+let lastFrame = 0
 
-let renderer = null;
-let gl = null;
-let program = null;
-let mesh = null;
-let animationId = null;
-let currentMouse = [0.5, 0.5];
-let targetMouse = [0.5, 0.5];
-let currentAmplitude = props.amplitude;
-let targetAmplitude = props.amplitude;
-let currentDistance = props.distance;
-let targetDistance = props.distance;
-let currentColor = [...props.color];
-let targetColor = [...props.color];
+let renderer = null
+let gl = null
+let program = null
+let mesh = null
+let animationId = null
+let currentMouse = [0.5, 0.5]
+let targetMouse = [0.5, 0.5]
+let currentAmplitude = props.amplitude
+let targetAmplitude = props.amplitude
+let currentDistance = props.distance
+let targetDistance = props.distance
+let currentColor = [...props.color]
+let targetColor = [...props.color]
 
 const vertexShader = `
 attribute vec2 position;
@@ -53,7 +53,7 @@ void main() {
   vUv = uv;
   gl_Position = vec4(position, 0.0, 1.0);
 }
-`;
+`
 
 const fragmentShader = `
 precision highp float;
@@ -160,106 +160,106 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 void main() {
     mainImage(gl_FragColor, gl_FragCoord.xy);
 }
-`;
+`
 
 const resize = () => {
-  if (!containerRef.value || !renderer || !program) return;
+  if (!containerRef.value || !renderer || !program) return
 
-  const container = containerRef.value;
-  const { clientWidth, clientHeight } = container;
-  renderer.setSize(clientWidth, clientHeight);
-  program.uniforms.iResolution.value.r = clientWidth;
-  program.uniforms.iResolution.value.g = clientHeight;
-  program.uniforms.iResolution.value.b = clientWidth / clientHeight;
-};
+  const container = containerRef.value
+  const { clientWidth, clientHeight } = container
+  renderer.setSize(clientWidth, clientHeight)
+  program.uniforms.iResolution.value.r = clientWidth
+  program.uniforms.iResolution.value.g = clientHeight
+  program.uniforms.iResolution.value.b = clientWidth / clientHeight
+}
 
 const handleMouseMove = (e) => {
-  targetMouse = [e.clientX / window.innerWidth, 1.0 - e.clientY / window.innerHeight];
-};
+  targetMouse = [e.clientX / window.innerWidth, 1.0 - e.clientY / window.innerHeight]
+}
 
 const handleMouseLeave = () => {
-  targetMouse = [0.5, 0.5];
-};
+  targetMouse = [0.5, 0.5]
+}
 
 const attachMouse = () => {
-  window.addEventListener('mousemove', handleMouseMove, { passive: true });
-  document.documentElement.addEventListener('mouseleave', handleMouseLeave);
-};
+  window.addEventListener('mousemove', handleMouseMove, { passive: true })
+  document.documentElement.addEventListener('mouseleave', handleMouseLeave)
+}
 
 const detachMouse = () => {
-  window.removeEventListener('mousemove', handleMouseMove);
-  document.documentElement.removeEventListener('mouseleave', handleMouseLeave);
-  targetMouse = [0.5, 0.5];
-};
+  window.removeEventListener('mousemove', handleMouseMove)
+  document.documentElement.removeEventListener('mouseleave', handleMouseLeave)
+  targetMouse = [0.5, 0.5]
+}
 
 // Stop rendering while the tab is hidden
 const handleVisibility = () => {
   if (document.hidden) {
-    if (animationId) cancelAnimationFrame(animationId);
-    animationId = null;
+    if (animationId) cancelAnimationFrame(animationId)
+    animationId = null
   } else if (!animationId && renderer) {
-    animationId = requestAnimationFrame(update);
+    animationId = requestAnimationFrame(update)
   }
-};
+}
 
 const update = (t) => {
-  if (!program || !renderer || !mesh) return;
+  if (!program || !renderer || !mesh) return
 
-  animationId = requestAnimationFrame(update);
-  if (t - lastFrame < minFrameMs) return;
-  lastFrame = t;
+  animationId = requestAnimationFrame(update)
+  if (t - lastFrame < minFrameMs) return
+  lastFrame = t
 
-  const transitionSpeed = 0.08;
+  const transitionSpeed = 0.08
 
-  currentAmplitude += (targetAmplitude - currentAmplitude) * transitionSpeed;
-  currentDistance += (targetDistance - currentDistance) * transitionSpeed;
-  currentColor[0] += (targetColor[0] - currentColor[0]) * transitionSpeed;
-  currentColor[1] += (targetColor[1] - currentColor[1]) * transitionSpeed;
-  currentColor[2] += (targetColor[2] - currentColor[2]) * transitionSpeed;
+  currentAmplitude += (targetAmplitude - currentAmplitude) * transitionSpeed
+  currentDistance += (targetDistance - currentDistance) * transitionSpeed
+  currentColor[0] += (targetColor[0] - currentColor[0]) * transitionSpeed
+  currentColor[1] += (targetColor[1] - currentColor[1]) * transitionSpeed
+  currentColor[2] += (targetColor[2] - currentColor[2]) * transitionSpeed
 
-  program.uniforms.uAmplitude.value = currentAmplitude;
-  program.uniforms.uDistance.value = currentDistance;
-  program.uniforms.uColor.value.r = currentColor[0];
-  program.uniforms.uColor.value.g = currentColor[1];
-  program.uniforms.uColor.value.b = currentColor[2];
+  program.uniforms.uAmplitude.value = currentAmplitude
+  program.uniforms.uDistance.value = currentDistance
+  program.uniforms.uColor.value.r = currentColor[0]
+  program.uniforms.uColor.value.g = currentColor[1]
+  program.uniforms.uColor.value.b = currentColor[2]
 
   if (props.enableMouseInteraction) {
-    const smoothing = 0.05;
-    currentMouse[0] += smoothing * (targetMouse[0] - currentMouse[0]);
-    currentMouse[1] += smoothing * (targetMouse[1] - currentMouse[1]);
-    program.uniforms.uMouse.value[0] = currentMouse[0];
-    program.uniforms.uMouse.value[1] = currentMouse[1];
+    const smoothing = 0.05
+    currentMouse[0] += smoothing * (targetMouse[0] - currentMouse[0])
+    currentMouse[1] += smoothing * (targetMouse[1] - currentMouse[1])
+    program.uniforms.uMouse.value[0] = currentMouse[0]
+    program.uniforms.uMouse.value[1] = currentMouse[1]
   } else {
-    program.uniforms.uMouse.value[0] = 0.5;
-    program.uniforms.uMouse.value[1] = 0.5;
+    program.uniforms.uMouse.value[0] = 0.5
+    program.uniforms.uMouse.value[1] = 0.5
   }
 
-  program.uniforms.iTime.value = t * 0.001;
-  renderer.render({ scene: mesh });
-};
+  program.uniforms.iTime.value = t * 0.001
+  renderer.render({ scene: mesh })
+}
 
 const initializeScene = () => {
-  if (!containerRef.value) return;
+  if (!containerRef.value) return
 
-  cleanup();
+  cleanup()
 
-  const container = containerRef.value;
+  const container = containerRef.value
   try {
-    renderer = new Renderer({ alpha: true, dpr: 1 });
+    renderer = new Renderer({ alpha: true, dpr: 1 })
   } catch {
-    renderer = null;
+    renderer = null
   }
   if (!renderer?.gl) {
-    renderer = null;
-    emit('unsupported');
-    return;
+    renderer = null
+    emit('unsupported')
+    return
   }
-  gl = renderer.gl;
-  gl.clearColor(0, 0, 0, 0);
-  gl.enable(gl.BLEND);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  gl = renderer.gl
+  gl.clearColor(0, 0, 0, 0)
+  gl.enable(gl.BLEND)
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
-  const geometry = new Triangle(gl);
+  const geometry = new Triangle(gl)
   program = new Program(gl, {
     vertex: vertexShader,
     fragment: fragmentShader,
@@ -273,83 +273,80 @@ const initializeScene = () => {
       uDistance: { value: props.distance },
       uMouse: { value: new Float32Array([0.5, 0.5]) }
     }
-  });
+  })
 
-  mesh = new Mesh(gl, { geometry, program });
+  mesh = new Mesh(gl, { geometry, program })
 
-  const canvas = gl.canvas;
-  canvas.style.width = '100%';
-  canvas.style.height = '100%';
-  canvas.style.display = 'block';
+  const canvas = gl.canvas
+  canvas.style.width = '100%'
+  canvas.style.height = '100%'
+  canvas.style.display = 'block'
 
-  container.appendChild(canvas);
+  container.appendChild(canvas)
 
-  window.addEventListener('resize', resize);
-  document.addEventListener('visibilitychange', handleVisibility);
-  if (props.enableMouseInteraction) attachMouse();
+  window.addEventListener('resize', resize)
+  document.addEventListener('visibilitychange', handleVisibility)
+  if (props.enableMouseInteraction) attachMouse()
 
-  resize();
-  animationId = requestAnimationFrame(update);
-};
+  resize()
+  animationId = requestAnimationFrame(update)
+}
 
 const cleanup = () => {
   if (animationId) {
-    cancelAnimationFrame(animationId);
-    animationId = null;
+    cancelAnimationFrame(animationId)
+    animationId = null
   }
 
-  window.removeEventListener('resize', resize);
-  document.removeEventListener('visibilitychange', handleVisibility);
-  detachMouse();
+  window.removeEventListener('resize', resize)
+  document.removeEventListener('visibilitychange', handleVisibility)
+  detachMouse()
 
   if (containerRef.value) {
-    const canvas = containerRef.value.querySelector('canvas');
+    const canvas = containerRef.value.querySelector('canvas')
     if (canvas) {
-      containerRef.value.removeChild(canvas);
+      containerRef.value.removeChild(canvas)
     }
   }
 
   if (gl) {
-    gl.getExtension('WEBGL_lose_context')?.loseContext();
+    gl.getExtension('WEBGL_lose_context')?.loseContext()
   }
 
-  renderer = null;
-  gl = null;
-  program = null;
-  mesh = null;
-  currentMouse = [0.5, 0.5];
-  targetMouse = [0.5, 0.5];
-  currentAmplitude = props.amplitude;
-  targetAmplitude = props.amplitude;
-  currentDistance = props.distance;
-  targetDistance = props.distance;
-  currentColor = [...props.color];
-  targetColor = [...props.color];
-};
+  renderer = null
+  gl = null
+  program = null
+  mesh = null
+  currentMouse = [0.5, 0.5]
+  targetMouse = [0.5, 0.5]
+  currentAmplitude = props.amplitude
+  targetAmplitude = props.amplitude
+  currentDistance = props.distance
+  targetDistance = props.distance
+  currentColor = [...props.color]
+  targetColor = [...props.color]
+}
 
 onMounted(() => {
-  initializeScene();
-});
+  initializeScene()
+})
 
 onUnmounted(() => {
-  cleanup();
-});
+  cleanup()
+})
 
 watch(
   () => props.enableMouseInteraction,
   (enabled) => {
-    if (!renderer) return;
-    if (enabled) attachMouse();
-    else detachMouse();
+    if (!renderer) return
+    if (enabled) attachMouse()
+    else detachMouse()
   }
-);
+)
 
-watch(
-  [() => props.color, () => props.amplitude, () => props.distance],
-  () => {
-    targetColor = [...props.color];
-    targetAmplitude = props.amplitude;
-    targetDistance = props.distance;
-  }
-);
+watch([() => props.color, () => props.amplitude, () => props.distance], () => {
+  targetColor = [...props.color]
+  targetAmplitude = props.amplitude
+  targetDistance = props.distance
+})
 </script>
