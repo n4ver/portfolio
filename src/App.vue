@@ -25,12 +25,6 @@ const bytesMined = ref(0)
 const isCorrupted = ref(false)
 
 const mineBytes = () => {
-  if (isCorrupted.value) {
-    // Pressing again restores the normal theme
-    isCorrupted.value = false
-    bytesMined.value = 0
-    return
-  }
   bytesMined.value++
   if (bytesMined.value >= 5) {
     isCorrupted.value = true // Triggers a theme change and uncovers a secret log
@@ -144,7 +138,7 @@ const scrollContainer = ref(null)
       <header>
         <div class="flex items-baseline gap-3 mb-2">
           <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight">{{ profile.name }}</h1>
-          <button type="button" @click="mineBytes" aria-label="Toggle secret theme" :aria-pressed="isCorrupted"
+          <button type="button" @click="mineBytes" aria-label="Mine an encrypted byte"
                   :class="['text-4xl md:text-5xl font-bold leading-none px-1 cursor-pointer select-none motion-safe:animate-pulse', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
             <span aria-hidden="true">_</span>
           </button>
@@ -173,9 +167,11 @@ const scrollContainer = ref(null)
           </ul>
         </nav>
 
-        <p v-if="isCorrupted" class="text-red-400 font-bold fade-in mt-6">
-          [CONCEPTUALIZATION: Success] — The system is yours. You have extracted {{ bytesMined }} encrypted bytes.
-        </p>
+        <div role="status">
+          <p v-if="isCorrupted" class="text-red-400 font-bold fade-in mt-6">
+            [CONCEPTUALIZATION: Success] — The system is yours. You have extracted {{ bytesMined }} encrypted bytes.
+          </p>
+        </div>
       </header>
       </AnimatedContent>
 
