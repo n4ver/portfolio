@@ -2,7 +2,7 @@
 import TagList from './TagList.vue'
 
 defineProps({
-  /** { title, role?, dates?, outcome, tags[], repo, demo?, image? } from src/data/projects.js */
+  /** { title, role?, dates?, outcome, highlights?[], featured?, tags[], repo, demo?, image? } from src/data/projects.js */
   project: { type: Object, required: true }
 })
 </script>
@@ -24,7 +24,12 @@ defineProps({
     <p v-if="project.role || project.dates" class="text-xs mb-4 text-theme-secondary">
       {{ [project.role, project.dates].filter(Boolean).join(' · ') }}
     </p>
-    <p class="text-sm mb-4 flex-1">{{ project.outcome }}</p>
+    <div class="text-sm mb-4 flex-1">
+      <p>{{ project.outcome }}</p>
+      <ul v-if="project.highlights?.length" class="mt-3 list-disc pl-5 space-y-1">
+        <li v-for="item in project.highlights" :key="item">{{ item }}</li>
+      </ul>
+    </div>
     <TagList :tags="project.tags" class="mb-6" />
     <div class="flex flex-wrap gap-x-6 gap-y-2">
       <a

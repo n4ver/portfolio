@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { nextTick, ref, useTemplateRef } from 'vue'
 import TypewriterText from './TypewriterText.vue'
 
 const props = defineProps({
@@ -17,6 +17,7 @@ let nextLineId = 0
 const line = (text) => ({ id: nextLineId++, text })
 
 const terminalInput = ref('')
+const logRef = useTemplateRef('logRef')
 const terminalOutput = ref([line(props.terminal.welcome)])
 
 const commands = {
@@ -50,6 +51,10 @@ const executeCommand = () => {
   const output = Object.hasOwn(commands, cmd) ? commands[cmd]() : [`Command not found: ${raw}`]
   // Keep only the last MAX_LINES lines to prevent UI overflow
   terminalOutput.value = [...terminalOutput.value, line(`> ${raw}`), ...output.map(line)].slice(-MAX_LINES)
+  // The log only grows as tall as its content (up to max-h), so keep the newest line in view
+  nextTick(() => {
+    if (logRef.value) logRef.value.scrollTop = logRef.value.scrollHeight
+  })
 }
 </script>
 
@@ -60,10 +65,11 @@ const executeCommand = () => {
       — <TypewriterText :text="terminal.bootLine.text" />
     </p>
     <div
+      ref="logRef"
       role="log"
       aria-live="polite"
       aria-label="Terminal output"
-      class="mb-2 space-y-1 h-32 overflow-y-auto flex flex-col justify-end"
+      class="mb-2 space-y-1 max-h-40 overflow-y-auto"
     >
       <p v-for="entry in terminalOutput" :key="entry.id" class="break-words text-theme-log">
         {{ entry.text }}

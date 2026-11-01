@@ -26,14 +26,14 @@ import { skills } from './data/skills.js'
     >
     <div class="p-6 md:p-16 max-w-4xl mx-auto">
       <ScrollReveal :delay="0.05" :distance="60" class="mb-16 border-b border-gray-700 pb-8">
-        <HeroHeader :profile="profile" :latest-job="experience[0]" />
+        <HeroHeader :profile="profile" />
       </ScrollReveal>
 
       <main id="main" tabindex="-1" class="space-y-16 focus:outline-none">
         <ScrollReveal :delay="0.1" :distance="60">
           <section aria-labelledby="experience-heading">
             <SectionHeading id="experience-heading">Experience</SectionHeading>
-            <ul class="space-y-8 relative border-l border-gray-700/50 pl-6 ml-2">
+            <ul class="space-y-8 relative border-l border-gray-700/50 pl-4 ml-1 sm:pl-6 sm:ml-2">
               <ExperienceItem v-for="job in experience" :key="job.company" :job="job" />
             </ul>
           </section>
@@ -43,9 +43,14 @@ import { skills } from './data/skills.js'
           <section aria-labelledby="projects-heading">
             <SectionHeading id="projects-heading">Projects</SectionHeading>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <ProjectCard v-for="project in projects" :key="project.title" :project="project" />
+              <ProjectCard
+                v-for="project in projects"
+                :key="project.title"
+                :project="project"
+                :class="{ 'md:col-span-2': project.featured }"
+              />
             </div>
-            <h3 class="text-lg font-bold text-white mt-10 mb-4">Coursework</h3>
+            <h3 class="text-lg font-bold text-white mt-10 mb-4">Course projects</h3>
             <CourseworkList :items="coursework" />
           </section>
         </ScrollReveal>
@@ -61,7 +66,7 @@ import { skills } from './data/skills.js'
         <ScrollReveal :delay="0.25" :distance="60">
           <section aria-labelledby="education-heading">
             <SectionHeading id="education-heading">Education</SectionHeading>
-            <ul class="space-y-8 relative border-l border-gray-700/50 pl-6 ml-2">
+            <ul class="space-y-8 relative border-l border-gray-700/50 pl-4 ml-1 sm:pl-6 sm:ml-2">
               <EducationItem v-for="edu in education" :key="edu.institute" :edu="edu" />
             </ul>
           </section>

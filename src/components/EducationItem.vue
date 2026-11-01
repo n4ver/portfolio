@@ -9,7 +9,7 @@ defineProps({
   <li class="relative group">
     <div
       aria-hidden="true"
-      class="absolute w-2.5 h-2.5 rounded-full -left-[30px] top-2 transition-colors duration-300 bg-theme-dot group-hover:bg-theme-accent"
+      class="absolute w-2.5 h-2.5 rounded-full -left-[22px] sm:-left-[30px] top-2 transition-colors duration-300 bg-theme-dot group-hover:bg-theme-accent"
     ></div>
 
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-x-4 gap-y-1">

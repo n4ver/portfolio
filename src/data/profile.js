@@ -1,11 +1,10 @@
 export const profile = {
   name: 'Nicholas Chng',
   role: 'Backend-focused engineering student shipping Java and Python services',
+  // One line each in the hero
   availability: [
-    'Singapore',
-    'In Munich Oct 2026 – Mar 2027',
-    'Open to internships from May 2027',
-    'Singapore Citizen'
+    'Based in Singapore · on exchange in Munich until Mar 2027',
+    'Open to internships from May 2027 · Singapore Citizen'
   ],
   email: 'nicholaslkchng@gmail.com',
   links: {
@@ -17,8 +16,8 @@ export const profile = {
 
 export const terminal = {
   bootLine: {
-    tag: '[LOGIC: Challenging]',
-    text: 'Start with the biggest letters in order to learn the characteristics of the style. Then work your way down.'
+    tag: '[TIP]',
+    text: 'This terminal works. Try "projects", "contact" or "resume".'
   },
-  welcome: 'SYSTEM.STATUS: ONLINE. Type "help" for a list of commands.'
+  welcome: 'SYSTEM.STATUS: ONLINE. Type "help" for all commands.'
 }
