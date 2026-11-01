@@ -51,7 +51,12 @@ onMounted(() => {
   }
   typewriterTimer = window.setInterval(() => {
     const nextIndex = typedText.value.length
-    if (nextIndex < fullText.length) {
+    if (reducedMotion.value) {
+      // Preference turned on mid-typing: show the full line and stop
+      typedText.value = fullText
+      clearInterval(typewriterTimer)
+      typewriterTimer = null
+    } else if (nextIndex < fullText.length) {
       typedText.value += fullText.charAt(nextIndex)
     } else if (typewriterTimer) {
       clearInterval(typewriterTimer)
