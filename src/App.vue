@@ -2,72 +2,20 @@
 import Threads from "./Threads.vue";
 import AnimatedContent from "./AnimatedContent.vue";
 import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { profile, terminal } from './data/profile.js';
+import { experience } from './data/experience.js';
+import { projects, coursework } from './data/projects.js';
+import { education } from './data/education.js';
+import { skills } from './data/skills.js';
 
-// --- PROJECT DATA ---
-const projects = ref([
-  {
-    title: 'E-sports Stats Dashboard',
-    tech: 'Python, FastAPI, REST API',
-    description: 'Engineered a high-throughput backend service using FastAPI and an event-driven CQRS pattern to ingest, parse and aggregate e-sports match logs asynchronously.',
-    link: 'https://github.com/n4ver/logdashboard'
-  },
-  {
-    title: 'E-sports Stream Dashboard',
-    tech: 'Python, Flask, WSGI, REST API',
-    description: 'Created and deployed a web-based dashboard automating display of competitive Team Fortress 2 match logs for grassroots live streaming.',
-    link: 'https://github.com/n4ver/N4TV'
-  },
-  {
-    title: 'Unity Horror Game',
-    tech: 'Unity, C#, Agile',
-    description: 'Developed a first-person horror game featuring an inventory system, event triggers & state management.',
-    link: 'https://github.com/n4ver/IM2073_horrorgame'
-  },
-  {
-    title: 'E-Bookshop Website',
-    tech: 'Java, MySQL, Tomcat',
-    description: 'Designed and implemented a normalised database schema with a many-to-many relationship, using PreparedStatements to prevent SQL injection.',
-    link: 'https://github.com/n4ver/IM2073_WebProject'
-  },
-  {
-    title: 'TF2 Hitsound Manager',
-    tech: 'Rust, Tauri',
-    description: 'A Desktop Application for managing Team Fortress 2 hitsound customizations.',
-    link: 'https://github.com/n4ver/hitman'
-  }
-])
+const latestJob = experience[0]
 
-// --- ACHIEVEMENTS DATA ---
-const achievements = ref([
-  { title: 'Selected Student Representative for NTU\'s IEM', event: 'EAB Accreditation Dialogue', year: '2026' },
-  { title: 'Participant', event: 'National Olympiad in Informatics (NOI)', year: '2019' },
-  { title: 'Merit Award', event: 'CB Paul Science Quiz', year: '2019' }
-])
-
-// --- EDUCATION DATA ---
-const education = ref([
-  {
-    institute: 'Nanyang Technological University',
-    course: 'BEng in Information Engineering & Media',
-    graduation: 'Expected May 2028',
-    cca: 'dEEEveloper Sub-committee (Training & Development | Special Projects)'
-
-  },
-  {
-    institute: 'Technical University of Munich',
-    course: 'GEM Explorer Semester Exchange',
-    graduation: '2027 Winter Semester',
-    cca: ''
-
-  },
-  {
-    institute: 'Ngee Ann Polytechnic',
-    course: 'Dip in Cybersecurity & Digital Forensics',
-    graduation: 'May 2023',
-    cca: ''
-  }
-])
-
+const contactLinks = [
+  { label: profile.email, href: `mailto:${profile.email}` },
+  { label: 'LinkedIn', href: profile.links.linkedin, external: true },
+  { label: 'GitHub', href: profile.links.github, external: true },
+  { label: 'Resume (PDF)', href: profile.links.resume, external: true }
+]
 
 // --- EASTER EGG: IDLE MECHANIC ---
 const bytesMined = ref(0)
@@ -84,8 +32,11 @@ const threadAmplitude = computed(() => (isCorrupted.value ? 14 : 5))
 const threadDistance = computed(() => (isCorrupted.value ? 0.45 : 0))
 const threadMouseInteraction = computed(() => isCorrupted.value)
 
-// --- TYPEWRITER EFFECT ---
-const fullText = "Start with the biggest letters in order to learn the characteristics of the style. Then work your way down."
+const headingClass = computed(() => ['text-2xl font-bold mb-6 flex items-center', isCorrupted.value ? 'text-red-500' : 'text-terminal-green'])
+const tagClass = computed(() => ['text-xs px-2 py-0.5 border', isCorrupted.value ? 'border-red-500/40 text-red-300' : 'border-terminal-accent/40 text-terminal-accent'])
+
+// --- TYPEWRITER EFFECT (terminal boot line) ---
+const fullText = terminal.bootLine.text
 const typedText = ref('')
 
 let typewriterTimer = null
@@ -111,20 +62,37 @@ onUnmounted(() => {
 
 // --- INTERACTIVE COMMAND LINE ---
 const terminalInput = ref('')
-const terminalOutput = ref(['SYSTEM.STATUS: ONLINE. Type "help" for a list of commands.'])
+const terminalOutput = ref([terminal.welcome])
 
 const executeCommand = () => {
   const cmd = terminalInput.value.trim().toLowerCase()
   if (!cmd) return
-  
+
   terminalOutput.value.push(`> ${cmd}`)
 
   switch (cmd) {
     case 'help':
-      terminalOutput.value.push('Available commands: help, whoami, clear, sudo rm -rf /')
+      terminalOutput.value.push('Available commands: help, whoami, contact, resume, projects, skills, clear, sudo rm -rf /')
       break
     case 'whoami':
-      terminalOutput.value.push('Nicholas Chng. Information Engineering & Media student at NTU.')
+      terminalOutput.value.push(`${profile.name}. ${profile.role}.`)
+      break
+    case 'contact':
+      terminalOutput.value.push(
+        `email:    ${profile.email}`,
+        `linkedin: ${profile.links.linkedin}`,
+        `github:   ${profile.links.github}`
+      )
+      break
+    case 'resume':
+      window.open(profile.links.resume, '_blank', 'noopener')
+      terminalOutput.value.push(`Opening ${profile.links.resume} in a new tab...`)
+      break
+    case 'projects':
+      terminalOutput.value.push(...projects.map(p => `${p.title}: ${p.repo}`))
+      break
+    case 'skills':
+      terminalOutput.value.push(...skills.map(s => `${s.group}: ${s.items.join(', ')}`))
       break
     case 'clear':
       terminalOutput.value = []
@@ -135,8 +103,8 @@ const executeCommand = () => {
     default:
       terminalOutput.value.push(`Command not found: ${cmd}`)
   }
-  
-  // Keep only the last 5 lines to prevent UI overflow
+
+  // Keep only the last 6 lines to prevent UI overflow
   if (terminalOutput.value.length > 6) {
     terminalOutput.value = terminalOutput.value.slice(-6)
   }
@@ -157,83 +125,113 @@ const scrollContainer = ref(null)
       />
     </div>
     <div ref="scrollContainer" class="scroll-shell relative z-10 h-full overflow-y-auto overflow-x-hidden scroll-smooth">
-      <div class="p-8 md:p-16 max-w-4xl mx-auto min-h-full">
+      <div class="p-6 md:p-16 max-w-4xl mx-auto min-h-full">
       <AnimatedContent :scroller="scrollContainer" :delay="0.05" :distance="60" class="mb-16 border-b border-gray-700 pb-8">
       <header>
         <h1 class="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
-          Nicholas Chng 
-          <span @click="mineBytes" 
+          {{ profile.name }}
+          <span @click="mineBytes"
                 :class="['animate-pulse cursor-pointer select-none', isCorrupted ? 'text-red-500' : 'text-terminal-green']">_</span>
-        </h1> 
-        <h2 class="text-xl text-gray-400 mb-6">Bachelor of Information Engineering & Media @ NTU</h2> 
-        
-        <div class="bg-gray-800/50 p-4 border-l-4 border-terminal-accent font-serif italic space-y-2 min-h-32">
-          <p>
-            <span :class="['font-bold not-italic', isCorrupted ? 'text-red-500' : 'text-terminal-accent']">[LOGIC: Challenging]</span> 
-            — {{ typedText }}<span v-if="typedText.length < fullText.length" class="animate-pulse">|</span>
-          </p>
-          
-          <p v-if="isCorrupted" class="text-red-400 font-bold fade-in mt-2">
-            [CONCEPTUALIZATION: Success] — The system is yours. You have extracted {{ bytesMined }} encrypted bytes.
-          </p>
-        </div>
+        </h1>
+        <p class="text-lg md:text-xl text-gray-300 mb-2">{{ profile.role }}</p>
+        <p class="text-sm mb-2">
+          <span :class="isCorrupted ? 'text-red-400' : 'text-terminal-accent'">Latest:</span>
+          {{ latestJob.role }} @ {{ latestJob.company }} ({{ latestJob.dates }})
+        </p>
+        <ul class="flex flex-wrap gap-x-2 text-sm text-gray-400 mb-6">
+          <li v-for="(item, i) in profile.availability" :key="item">
+            <span v-if="i > 0" aria-hidden="true" class="mr-2">·</span>{{ item }}
+          </li>
+        </ul>
+
+        <ul class="flex flex-wrap gap-3">
+          <li v-for="link in contactLinks" :key="link.href">
+            <a :href="link.href"
+               :target="link.external ? '_blank' : undefined"
+               :rel="link.external ? 'noopener' : undefined"
+               :class="['inline-flex items-center px-4 py-2 text-sm font-bold border transition-colors', isCorrupted ? 'border-red-500/60 hover:bg-red-500 hover:text-black' : 'border-terminal-green/60 text-terminal-green hover:bg-terminal-green hover:text-terminal-bg']">
+              {{ link.label }}
+            </a>
+          </li>
+        </ul>
+
+        <p v-if="isCorrupted" class="text-red-400 font-bold fade-in mt-6">
+          [CONCEPTUALIZATION: Success] — The system is yours. You have extracted {{ bytesMined }} encrypted bytes.
+        </p>
       </header>
       </AnimatedContent>
 
       <main class="space-y-16">
         <AnimatedContent :scroller="scrollContainer" :delay="0.1" :distance="60">
         <section>
-          <h3 :class="['text-2xl font-boldmb-6 flex items-center', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
-            <span class="mr-2">/></span> Work_Experience
-          </h3>
-          
+          <h2 :class="headingClass">
+            <span class="mr-2" aria-hidden="true">/></span> Skills
+          </h2>
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div v-for="group in skills" :key="group.group">
+              <dt class="text-sm font-bold text-white mb-2">{{ group.group }}</dt>
+              <dd class="flex flex-wrap gap-2">
+                <span v-for="item in group.items" :key="item" :class="tagClass">{{ item }}</span>
+              </dd>
+            </div>
+          </dl>
+        </section>
+        </AnimatedContent>
+
+        <AnimatedContent :scroller="scrollContainer" :delay="0.1" :distance="60">
+        <section>
+          <h2 :class="headingClass">
+            <span class="mr-2" aria-hidden="true">/></span> Experience
+          </h2>
+
           <div class="space-y-8">
-            <div class="relative pl-6 border-l border-gray-700">
+            <article v-for="job in experience" :key="job.company" class="relative pl-6 border-l border-gray-700">
               <div class="absolute w-3 h-3 bg-gray-600 rounded-full -left-[6.5px] top-1.5"></div>
-              <h4 class="text-xl font-bold text-white">Audax Financial Technology</h4> <p class="text-terminal-accent mb-2">Software Engineer Intern | May 2026 - Aug 2026</p> <p class="text-sm">
-                Migrated seven Java microservices (accounts, transactions, payments) from Spring Boot 3.5 to 4.0. Developed strategy-pattern Java services to retrieve pending hold transactions from core banking APIs, enabling end-to-end CASA journeys.
-              </p> </div>
-            
-            <div class="relative pl-6 border-l border-gray-700">
-              <div class="absolute w-3 h-3 bg-gray-600 rounded-full -left-[6.5px] top-1.5"></div>
-              <h4 class="text-xl font-bold text-white">Singapore Armed Forces</h4> <p class="text-terminal-accent mb-2">Signal Storeman | Aug 2023 - Aug 2025</p> <p class="text-sm">Built Excel-based automation systems to track inventory, improving fulfilment lead times and accuracy by 20%.</p> </div>
-            
-            <div class="relative pl-6 border-l border-gray-700">
-              <div class="absolute w-3 h-3 bg-gray-600 rounded-full -left-[6.5px] top-1.5"></div>
-              <h4 class="text-xl font-bold text-white">Toppan Ecquaria</h4> <p class="text-terminal-accent mb-2">QA Intern | Sep 2022 - Jan 2023</p> <p class="text-sm">Devised automation scripts in Visual Basic and Excel to streamline data tracking, reducing manual entry errors and improving bug-reporting turnaround by 40%.</p> </div>
+              <h3 class="text-xl font-bold text-white">{{ job.role }}</h3>
+              <p :class="['mb-2', isCorrupted ? 'text-red-400' : 'text-terminal-accent']">{{ job.company }} | {{ job.dates }}</p>
+              <ul class="text-sm list-disc pl-5 space-y-1 mb-3">
+                <li v-for="bullet in job.bullets" :key="bullet">{{ bullet }}</li>
+              </ul>
+              <ul v-if="job.tags.length" class="flex flex-wrap gap-2">
+                <li v-for="tag in job.tags" :key="tag" :class="tagClass">{{ tag }}</li>
+              </ul>
+            </article>
           </div>
         </section>
         </AnimatedContent>
 
         <AnimatedContent :scroller="scrollContainer" :delay="0.15" :distance="60">
         <section>
-          <h3 :class="['text-2xl font-bold mb-6 flex items-center', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
-            <span class="mr-2">/></span> Project_Vault
-          </h3>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div v-for="project in projects" :key="project.title" 
-                :class="['bg-gray-800/30 border border-gray-700 p-6 transition-colors group', isCorrupted ? 'hover:border-red-500' : 'hover:border-terminal-green']">
-              <h4 :class="['text-lg font-bold text-white mb-1', isCorrupted ? 'group-hover:text-red-500' : 'group-hover:text-terminal-green']">{{ project.title }}</h4>
-              <p :class="['text-xs mb-4 font-bold tracking-wider uppercase', isCorrupted ? 'text-red-400' : 'text-terminal-accent']">{{ project.tech }}</p>
-              <p class="text-sm mb-6">{{ project.description }}</p>
-              <a :href="project.link" target="_blank" class="inline-flex items-center text-sm font-bold hover:text-white transition-colors">
-                Access Source <span class="ml-2 group-hover:translate-x-1 transition-transform">-></span>
-              </a>
-            </div>
-          </div>
-        </section>
-        </AnimatedContent>
+          <h2 :class="headingClass">
+            <span class="mr-2" aria-hidden="true">/></span> Projects
+          </h2>
 
-        <AnimatedContent :scroller="scrollContainer" :delay="0.2" :distance="60">
-        <section>
-          <h3 :class="['text-2xl font-bold mb-6 flex items-center', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
-            <span class="mr-2">/></span> Accolades
-          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <article v-for="project in projects" :key="project.title"
+                :class="['bg-gray-800/30 border border-gray-700 p-6 transition-colors group flex flex-col', isCorrupted ? 'hover:border-red-500' : 'hover:border-terminal-green']">
+              <img v-if="project.image" :src="project.image" :alt="`Screenshot of ${project.title}`" width="1200" height="750" loading="lazy" class="mb-4 border border-gray-700">
+              <h3 :class="['text-lg font-bold text-white mb-1', isCorrupted ? 'group-hover:text-red-500' : 'group-hover:text-terminal-green']">{{ project.title }}</h3>
+              <p :class="['text-xs mb-4 font-bold tracking-wider uppercase', isCorrupted ? 'text-red-400' : 'text-terminal-accent']">{{ project.tags.join(', ') }}</p>
+              <p class="text-sm mb-6 flex-1">{{ project.outcome }}</p>
+              <div class="flex flex-wrap gap-x-6 gap-y-2">
+                <a :href="project.repo" target="_blank" rel="noopener" class="inline-flex items-center text-sm font-bold hover:text-white transition-colors">
+                  Access Source <span class="ml-2 group-hover:translate-x-1 transition-transform">-></span>
+                </a>
+                <a v-if="project.demo" :href="project.demo" target="_blank" rel="noopener" class="inline-flex items-center text-sm font-bold hover:text-white transition-colors">
+                  Live Demo <span class="ml-2">-></span>
+                </a>
+              </div>
+            </article>
+          </div>
+
+          <h3 class="text-lg font-bold text-white mt-10 mb-4">Coursework</h3>
           <ul class="space-y-3">
-            <li v-for="award in achievements" :key="award.title" class="flex flex-col sm:flex-row sm:justify-between border-b border-gray-700/50 pb-2">
-              <span class="font-bold text-white">{{ award.title }}</span>
-              <span class="text-sm text-gray-400">{{ award.event }} <span class="text-terminal-accent ml-2">[{{ award.year }}]</span></span>
+            <li v-for="item in coursework" :key="item.title" class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1 border-b border-gray-700/50 pb-2">
+              <span>
+                <a :href="item.repo" target="_blank" rel="noopener" class="font-bold text-white hover:underline">{{ item.title }}</a>
+                <span class="text-sm text-gray-400"> — {{ item.outcome }}</span>
+              </span>
+              <span :class="['text-xs whitespace-nowrap', isCorrupted ? 'text-red-400' : 'text-terminal-accent']">{{ item.tags.join(', ') }}</span>
             </li>
           </ul>
         </section>
@@ -241,35 +239,35 @@ const scrollContainer = ref(null)
 
         <AnimatedContent :scroller="scrollContainer" :delay="0.25" :distance="60">
         <section>
-          <h3 :class="['text-2xl font-bold mb-6 flex items-center', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
-            <span class="mr-2">/></span> Education
-          </h3>
-          
+          <h2 :class="headingClass">
+            <span class="mr-2" aria-hidden="true">/></span> Education
+          </h2>
+
           <ul class="space-y-8 relative border-l border-gray-700/50 pl-6 ml-2">
-            
+
             <li v-for="edu in education" :key="edu.institute" class="relative group">
               <div :class="['absolute w-2.5 h-2.5 rounded-full -left-[30px] top-1.5 transition-colors duration-300', isCorrupted ? 'bg-red-500' : 'bg-gray-600 group-hover:bg-terminal-green']"></div>
 
               <div class="flex flex-col md:flex-row md:justify-between items-start gap-2 md:gap-4">
-                
+
                 <div class="mb-2 md:mb-0 flex-1">
-                  <h4 class="text-lg font-bold text-white tracking-wide">{{ edu.institute }}</h4>
-                  <p v-if="edu.cca" :class="['text-xs mt-2 flex items-start leading-relaxed', isCorrupted ? 'text-red-400/80' : 'text-terminal-accent/80']">
-                    <span class="mr-2 opacity-50 font-mono">↳</span> 
-                    {{ edu.cca }}
+                  <h3 class="text-lg font-bold text-white tracking-wide">{{ edu.institute }}</h3>
+                  <p v-for="note in edu.notes" :key="note" :class="['text-xs mt-2 flex items-start leading-relaxed', isCorrupted ? 'text-red-400/80' : 'text-terminal-accent/80']">
+                    <span class="mr-2 opacity-50 font-mono">↳</span>
+                    {{ note }}
                   </p>
                 </div>
 
                 <div class="flex flex-col md:items-end md:text-right flex-1">
                   <span class="text-gray-300 font-medium">{{ edu.course }}</span>
                   <span :class="['text-xs font-mono tracking-wider mt-1 whitespace-nowrap', isCorrupted ? 'text-red-500' : 'text-terminal-green']">
-                    [{{ edu.graduation }}]
+                    [{{ edu.dates }}]
                   </span>
                 </div>
-                
+
               </div>
             </li>
-            
+
           </ul>
         </section>
         </AnimatedContent>
@@ -279,29 +277,33 @@ const scrollContainer = ref(null)
       <AnimatedContent :scroller="scrollContainer" :delay="0.3" :distance="50">
       <footer class="mt-24 pt-8 border-t border-gray-700 font-mono text-sm">
         <div class="bg-black/50 p-4 rounded-md border border-gray-800">
+          <p :class="['mb-2', isCorrupted ? 'text-red-300' : 'text-gray-400']">
+            <span :class="['font-bold', isCorrupted ? 'text-red-500' : 'text-terminal-accent']">{{ terminal.bootLine.tag }}</span>
+            — {{ typedText }}<span v-if="typedText.length < fullText.length" class="animate-pulse">|</span>
+          </p>
           <div class="mb-2 space-y-1 h-32 overflow-y-auto flex flex-col justify-end">
-            <p v-for="(line, index) in terminalOutput" :key="index" :class="isCorrupted ? 'text-red-400' : 'text-gray-400'">
+            <p v-for="(line, index) in terminalOutput" :key="index" :class="['break-words', isCorrupted ? 'text-red-400' : 'text-gray-400']">
               {{ line }}
             </p>
           </div>
           <div class="flex items-center">
             <span :class="['mr-2', isCorrupted ? 'text-red-500' : 'text-terminal-green']">guest@n4ver:~$</span>
-            <input 
-              v-model="terminalInput" 
+            <input
+              v-model="terminalInput"
               @keyup.enter="executeCommand"
-              type="text" 
-              class="bg-transparent border-none outline-none flex-1 text-white"
+              type="text"
+              class="bg-transparent border-none outline-none flex-1 min-w-0 text-white"
               placeholder="enter command..."
               autocomplete="off"
               spellcheck="false"
             />
           </div>
         </div>
-        
+
         <div class="mt-4 flex justify-between text-gray-500">
           <p>SYSTEM.VERSION: 1.0.0</p>
           <div class="space-x-4">
-            <a href="https://github.com/n4ver" target="_blank" class="hover:text-white transition-colors">GitHub</a>
+            <a :href="profile.links.github" target="_blank" rel="noopener" class="hover:text-white transition-colors">GitHub</a>
           </div>
         </div>
       </footer>
