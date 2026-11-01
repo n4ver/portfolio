@@ -2,13 +2,17 @@
 export const projects = [
   {
     title: 'TF2 Match Analytics Platform',
+    role: 'Solo developer',
+    dates: 'Apr 2026 – Present',
     outcome:
-      'CQRS backend that ingests TF2 match logs, publishes domain events and materialises 10+ read-model projections for match, player and tournament queries, covered by 130+ pytest tests.',
+      'CQRS backend that ingests TF2 match logs, publishes domain events and materialises 10+ read-model projections for match, player and tournament queries. Async write paths use an outbox and idempotent event consumers, behind Steam OpenID + JWT role-based access, OpenAPI-documented REST APIs and 130+ pytest tests.',
     tags: ['Python', 'FastAPI', 'RabbitMQ', 'PostgreSQL', 'Node.js', 'JWT'],
     repo: 'https://github.com/n4ver/logdashboard'
   },
   {
     title: 'E-sports Stream Dashboard',
+    role: 'Solo developer',
+    dates: 'Jan 2026 – Feb 2026',
     outcome:
       'Flask REST API and Vue SPA that ingests logs.tf match data and drives live-stream overlays for grassroots Team Fortress 2 broadcasts.',
     tags: ['Python', 'Flask', 'Vue', 'Vercel'],
@@ -17,6 +21,8 @@ export const projects = [
   },
   {
     title: 'Hitman',
+    role: 'Solo developer',
+    dates: 'Jul 2026 – Present',
     outcome: 'Tauri desktop app that automates custom Team Fortress 2 hitsound management with a real-time preview UI.',
     tags: ['Rust', 'Tauri'],
     repo: 'https://github.com/n4ver/hitman'

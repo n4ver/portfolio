@@ -1,6 +1,6 @@
 <script setup>
 defineProps({
-  /** { institute, course, dates, notes[] } from src/data/education.js */
+  /** { institute, course, dates, gpa?, coursework?[], notes[] } from src/data/education.js */
   edu: { type: Object, required: true }
 })
 </script>
@@ -15,6 +15,12 @@ defineProps({
     <div class="flex flex-col md:flex-row md:justify-between items-start gap-2 md:gap-4">
       <div class="mb-2 md:mb-0 flex-1">
         <h3 class="text-lg font-bold text-white tracking-wide">{{ edu.institute }}</h3>
+        <p v-if="edu.gpa" class="text-sm mt-1">
+          <span class="text-theme-secondary">GPA:</span> <span class="font-bold text-white">{{ edu.gpa }}</span>
+        </p>
+        <p v-if="edu.coursework?.length" class="text-xs mt-2 leading-relaxed text-gray-400">
+          <span class="text-theme-secondary">Coursework:</span> {{ edu.coursework.join(', ') }}
+        </p>
         <p
           v-for="note in edu.notes"
           :key="note"

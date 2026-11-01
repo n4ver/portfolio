@@ -1,6 +1,8 @@
 <script setup>
+import TagList from './TagList.vue'
+
 defineProps({
-  /** { title, outcome, tags[], repo, demo?, image? } from src/data/projects.js */
+  /** { title, role?, dates?, outcome, tags[], repo, demo?, image? } from src/data/projects.js */
   project: { type: Object, required: true }
 })
 </script>
@@ -19,16 +21,19 @@ defineProps({
       class="mb-4 border border-gray-700"
     />
     <h3 class="text-lg font-bold text-white mb-1 group-hover:text-theme-accent">{{ project.title }}</h3>
-    <p class="text-xs mb-4 font-bold tracking-wider uppercase text-theme-secondary">{{ project.tags.join(', ') }}</p>
-    <p class="text-sm mb-6 flex-1">{{ project.outcome }}</p>
+    <p v-if="project.role || project.dates" class="text-xs mb-4 text-theme-secondary">
+      {{ [project.role, project.dates].filter(Boolean).join(' · ') }}
+    </p>
+    <p class="text-sm mb-4 flex-1">{{ project.outcome }}</p>
+    <TagList :tags="project.tags" class="mb-6" />
     <div class="flex flex-wrap gap-x-6 gap-y-2">
       <a
         :href="project.repo"
         target="_blank"
         rel="noopener"
-        class="inline-flex items-center text-sm font-bold hover:text-white transition-colors"
+        class="inline-flex items-center text-sm font-bold underline underline-offset-4 text-theme-link hover:text-white transition-colors"
       >
-        Access Source<span class="sr-only"> for {{ project.title }} on GitHub (opens in new tab)</span>
+        GitHub<span class="sr-only"> repository for {{ project.title }} (opens in new tab)</span>
         <span class="ml-2 motion-safe:group-hover:translate-x-1 motion-safe:transition-transform" aria-hidden="true"
           >-></span
         >
@@ -38,9 +43,9 @@ defineProps({
         :href="project.demo"
         target="_blank"
         rel="noopener"
-        class="inline-flex items-center text-sm font-bold hover:text-white transition-colors"
+        class="inline-flex items-center text-sm font-bold underline underline-offset-4 text-theme-link hover:text-white transition-colors"
       >
-        Live Demo<span class="sr-only"> of {{ project.title }} (opens in new tab)</span>
+        Live demo<span class="sr-only"> of {{ project.title }} (opens in new tab)</span>
         <span class="ml-2" aria-hidden="true">-></span>
       </a>
     </div>

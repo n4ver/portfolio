@@ -31,15 +31,6 @@ import { skills } from './data/skills.js'
 
       <main id="main" tabindex="-1" class="space-y-16 focus:outline-none">
         <ScrollReveal :delay="0.1" :distance="60">
-          <section aria-labelledby="skills-heading">
-            <SectionHeading id="skills-heading">Skills</SectionHeading>
-            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <SkillGroup v-for="group in skills" :key="group.group" :group="group" />
-            </dl>
-          </section>
-        </ScrollReveal>
-
-        <ScrollReveal :delay="0.1" :distance="60">
           <section aria-labelledby="experience-heading">
             <SectionHeading id="experience-heading">Experience</SectionHeading>
             <ul class="space-y-8 relative border-l border-gray-700/50 pl-6 ml-2">
@@ -59,6 +50,14 @@ import { skills } from './data/skills.js'
           </section>
         </ScrollReveal>
 
+        <ScrollReveal :delay="0.1" :distance="60">
+          <section aria-labelledby="skills-heading">
+            <SectionHeading id="skills-heading">Skills</SectionHeading>
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <SkillGroup v-for="group in skills" :key="group.group" :group="group" />
+            </dl>
+          </section>
+        </ScrollReveal>
         <ScrollReveal :delay="0.25" :distance="60">
           <section aria-labelledby="education-heading">
             <SectionHeading id="education-heading">Education</SectionHeading>
