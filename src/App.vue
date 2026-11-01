@@ -3,13 +3,14 @@ import ScrollReveal from './components/ScrollReveal.vue'
 import SiteBackground from './components/SiteBackground.vue'
 import HeroHeader from './components/HeroHeader.vue'
 import SectionHeading from './components/SectionHeading.vue'
+import SummarySection from './components/SummarySection.vue'
 import SkillGroup from './components/SkillGroup.vue'
 import ExperienceItem from './components/ExperienceItem.vue'
 import ProjectCard from './components/ProjectCard.vue'
 import CourseworkList from './components/CourseworkList.vue'
 import EducationItem from './components/EducationItem.vue'
 import SiteFooter from './components/SiteFooter.vue'
-import { profile, terminal } from './data/profile.js'
+import { profile, summary, terminal } from './data/profile.js'
 import { experience } from './data/experience.js'
 import { projects, coursework } from './data/projects.js'
 import { education } from './data/education.js'
@@ -30,6 +31,10 @@ import { skills } from './data/skills.js'
       </ScrollReveal>
 
       <main id="main" tabindex="-1" class="space-y-16 focus:outline-none">
+        <ScrollReveal :delay="0.1" :distance="60">
+          <SummarySection :summary="summary" />
+        </ScrollReveal>
+
         <ScrollReveal :delay="0.1" :distance="60">
           <section aria-labelledby="experience-heading">
             <SectionHeading id="experience-heading">Experience</SectionHeading>

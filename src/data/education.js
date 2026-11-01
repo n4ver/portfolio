@@ -23,7 +23,7 @@ export const education = [
     course: 'Dip in Cybersecurity & Digital Forensics',
     dates: 'Jan 2020 – May 2023',
     gpa: '3.56 / 4.0',
-    coursework: ['Cryptography, Ethical Hacking', 'Web Application Pen Testing'],
+    coursework: ['Cryptography', 'Ethical Hacking', 'Web Application Pen Testing'],
     notes: []
   }
 ]
