@@ -2,10 +2,10 @@
 // demo (live URL), image (path under public/projects/).
 export const projects = [
   {
-    title: 'TF2 Match Analytics Platform',
+    title: 'nav.tf, TF2 Match Analytics Platform',
     role: 'Solo developer',
     dates: 'Apr 2026 – Present',
-    featured: true,
+    // featured: true,
     outcome:
       'CQRS backend that ingests TF2 match logs and serves match, player and tournament queries from 10+ read-model projections.',
     highlights: [
@@ -17,7 +17,21 @@ export const projects = [
     repo: 'https://github.com/n4ver/logdashboard'
   },
   {
-    title: 'E-sports Stream Dashboard',
+    title: 'Tao, Downloaded Files Manager',
+    role: 'Solo developer',
+    dates: 'Oct 2026 - Present',
+    outcome: 'Rust-based Windows file manager that automatically organizes the Downloads folder using configurable rules.',
+    highlights: [
+      'Automation: Background filesystem watcher with event-driven sorting, periodic rescans and automatic configuration reloads',
+      'Rules engine: Configurable TOML rules supporting extensions, glob patterns, regex, file age, size and download source',
+      'Reliability: SQLite transaction journal with crash recovery, undo support and protection against file overwrites', 
+      'Windows integration: System tray interface, startup registration, Win32 APIs and concurrent event-driven architecture'
+    ],
+    tags: ['Rust, SQLite'],
+    repo: 'https://github.com/n4ver/Tao'
+  },
+  {
+    title: 'N4TV, E-sports Stream Dashboard',
     role: 'Solo developer',
     dates: 'Jan 2026 – Feb 2026',
     outcome:
