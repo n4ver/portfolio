@@ -9,11 +9,12 @@ export const projects = [
     outcome:
       'CQRS backend that ingests TF2 match logs and serves match, player and tournament queries from 10+ read-model projections.',
     highlights: [
+      'Architecture: CQRS microservices with PostgreSQL read models and RabbitMQ event-driven communication',
       'Event pipeline: RabbitMQ domain events with an outbox and idempotent consumers',
       'Access: Steam OpenID + JWT role-based auth behind OpenAPI-documented REST APIs',
       'Quality: 130+ pytest tests across services'
     ],
-    tags: ['Python', 'FastAPI', 'RabbitMQ', 'PostgreSQL', 'Node.js', 'JWT'],
+    tags: ['Python', 'FastAPI', 'RabbitMQ', 'PostgreSQL', 'Node.js', 'JWT', 'Docker'],
     repo: 'https://github.com/n4ver/logdashboard'
   },
   {
@@ -27,7 +28,7 @@ export const projects = [
       'Reliability: SQLite transaction journal with crash recovery, undo support and protection against file overwrites', 
       'Windows integration: System tray interface, startup registration, Win32 APIs and concurrent event-driven architecture'
     ],
-    tags: ['Rust, SQLite'],
+    tags: ['Rust', 'SQLite'],
     repo: 'https://github.com/n4ver/Tao'
   },
   {
