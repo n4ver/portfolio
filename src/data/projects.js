@@ -2,22 +2,37 @@
 // demo (live URL), image (path under public/projects/).
 export const projects = [
   {
-    title: 'TF2 Match Analytics Platform',
+    title: 'nav.tf, TF2 Match Analytics Platform',
     role: 'Solo developer',
     dates: 'Apr 2026 – Present',
-    featured: true,
+    // featured: true,
     outcome:
       'CQRS backend that ingests TF2 match logs and serves match, player and tournament queries from 10+ read-model projections.',
     highlights: [
+      'Architecture: CQRS microservices with PostgreSQL read models and RabbitMQ event-driven communication',
       'Event pipeline: RabbitMQ domain events with an outbox and idempotent consumers',
       'Access: Steam OpenID + JWT role-based auth behind OpenAPI-documented REST APIs',
       'Quality: 130+ pytest tests across services'
     ],
-    tags: ['Python', 'FastAPI', 'RabbitMQ', 'PostgreSQL', 'Node.js', 'JWT'],
+    tags: ['Python', 'FastAPI', 'RabbitMQ', 'PostgreSQL', 'Node.js', 'JWT', 'Docker'],
     repo: 'https://github.com/n4ver/logdashboard'
   },
   {
-    title: 'E-sports Stream Dashboard',
+    title: 'Tao, Downloaded Files Manager',
+    role: 'Solo developer',
+    dates: 'Oct 2026 - Present',
+    outcome: 'Rust-based Windows utility that automatically organizes Downloads using configurable rules, background monitoring and reversible file operations.',
+    highlights: [
+      'Automation: Background filesystem watcher with periodic rescans',
+      'Rules: TOML-based filtering by extension, patterns, size, age and source',
+      'Reliability: SQLite logging, undo support and overwrite protection', 
+      'Windows integration: System tray interface, startup registration, Win32 APIs'
+    ],
+    tags: ['Rust', 'SQLite'],
+    repo: 'https://github.com/n4ver/Tao'
+  },
+  {
+    title: 'N4TV, E-sports Stream Dashboard',
     role: 'Solo developer',
     dates: 'Jan 2026 – Feb 2026',
     outcome:
