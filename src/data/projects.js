@@ -21,12 +21,12 @@ export const projects = [
     title: 'Tao, Downloaded Files Manager',
     role: 'Solo developer',
     dates: 'Oct 2026 - Present',
-    outcome: 'Rust-based Windows file manager that automatically organizes the Downloads folder using configurable rules.',
+    outcome: 'Rust-based Windows utility that automatically organizes Downloads using configurable rules, background monitoring and reversible file operations.',
     highlights: [
-      'Automation: Background filesystem watcher with event-driven sorting, periodic rescans and automatic configuration reloads',
-      'Rules engine: Configurable TOML rules supporting extensions, glob patterns, regex, file age, size and download source',
-      'Reliability: SQLite transaction journal with crash recovery, undo support and protection against file overwrites', 
-      'Windows integration: System tray interface, startup registration, Win32 APIs and concurrent event-driven architecture'
+      'Automation: Background filesystem watcher with periodic rescans',
+      'Rules: TOML-based filtering by extension, patterns, size, age and source',
+      'Reliability: SQLite logging, undo support and overwrite protection', 
+      'Windows integration: System tray interface, startup registration, Win32 APIs'
     ],
     tags: ['Rust', 'SQLite'],
     repo: 'https://github.com/n4ver/Tao'
