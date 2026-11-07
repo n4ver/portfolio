@@ -4,18 +4,21 @@ export const projects = [
   {
     title: 'nav.tf, TF2 Match Analytics Platform',
     role: 'Solo developer',
+    image: '/projects/nav-tf-portfolio.png',
     dates: 'Apr 2026 – Present',
-    // featured: true,
+    featured: true,
     outcome:
-      'CQRS backend that ingests TF2 match logs and serves match, player and tournament queries from 10+ read-model projections.',
+      'Full-stack platform that ingests competitive TF2 match logs from logs.tf and matcha.tf, computes per-class player ratings, and serves leaderboards, match stats and player careers through a Vue dashboard. Live in production.',
     highlights: [
-      'Architecture: CQRS microservices with PostgreSQL read models and RabbitMQ event-driven communication',
-      'Event pipeline: RabbitMQ domain events with an outbox and idempotent consumers',
-      'Access: Steam OpenID + JWT role-based auth behind OpenAPI-documented REST APIs',
-      'Quality: 130+ pytest tests across services'
+      'Architecture: CQRS command and query services on separate PostgreSQL databases; 11 read-model projections serve the dashboard without touching the write model',
+      'Reliability: transactional outbox with ordered relay, exponential backoff and a Postgres advisory lock; idempotent RabbitMQ consumers claim each event ID in-transaction, retry in order, and park failures in a dead-letter queue',
+      'Ratings: per-class z-score ratings against computed benchmarks; rebuilds are debounced so a burst of ingested matches triggers one global rescore, not one per event',
+      'Access: Steam OpenID login issuing JWTs with PLAYER/ADMIN roles guarding all write endpoints; 29 paths documented in OpenAPI',
+      'Delivery: 400+ automated tests (220+ pytest backend, plus Vitest and Jest), GitHub Actions CI, deployed on GCP Compute Engine behind Caddy via Workload Identity Federation'
     ],
-    tags: ['Python', 'FastAPI', 'RabbitMQ', 'PostgreSQL', 'Node.js', 'JWT', 'Docker'],
-    repo: 'https://github.com/n4ver/logdashboard'
+    tags: ['Python', 'FastAPI', 'PostgreSQL', 'RabbitMQ', 'Vue 3', 'Node.js', 'Docker', 'GCP', 'GitHub Actions'],
+    repo: 'https://github.com/n4ver/nav.tf',
+    demo: 'https://nav.n4ver.xyz'
   },
   {
     title: 'Tao, Downloaded Files Manager',

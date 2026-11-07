@@ -21,7 +21,7 @@ export const summary = {
     speaker: 'Kim Kitsuragi',
     source: 'Disco Elysium'
   },
-  text: "My part is backend engineering. I study Information Engineering at NTU (GPA 4.54 / 5.0) and am on exchange at TU Munich until March 2027. I've migrated 7 Spring Boot microservices at a fintech and build event-driven systems in my own time, with a cybersecurity background that makes CVEs and test coverage part of the job. I'm looking for backend internships from May 2027."
+  text: "My part is backend engineering. I study Information Engineering & Media at NTU and am on exchange at TU Munich until March 2027. I've migrated 7 Spring Boot microservices at a fintech and build event-driven systems in my own time. I'm looking for backend internships from May 2027."
 }
 
 export const terminal = {
